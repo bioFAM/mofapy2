@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "mofapy2"
+version = "0.5.6"
+description = "Multi-omics factor analysis"
+
+authors = ['Ricard Argelaguet', 'Damien Arnol', 'Danila Bredikhin', 'Britta Velten']
+
+license = "LGPL-3.0"
+
+readme = 'README.md'
+
+repository = "https://github.com/gtca/mofapy2"
+homepage = "https:/biofam.github.io/MOFA2/"
+
+
+[tool.poetry.dependencies]
+python = "^3.6.1"
+toml = "^0.9"
+numpy = "^1.17.0"
+pandas = "^1.0.0"
+scipy = "^1.3.0"
+sklearn = "^0.0"
+h5py = "^2.9.0"
+anndata = { version = "^0.7.1", optional = true }
+
+[tool.poetry.dev-dependencies]
+pytest = "^3.0"
