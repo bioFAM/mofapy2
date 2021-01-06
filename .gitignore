@@ -1,0 +1,47 @@
+# MAC
+*Icon*
+.DS_Store
+
+# Rstudio projects
+*.Rproj
+.Rhistory
+
+*_site/
+# Pycharm
+.idea
+
+# HTML
+# *.html
+
+# Models outputs
+*.hdf5
+
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.pyc
+*.egg-info/
+.installed.cfg
+*.egg
+.Rproj.user
+*.Rcheck
+.Rproj.user
+.Rhistory
+.RData
+*.ipynb_checkpoints
+
+*_cache/
+*_files/
+
+*.tar.gz
