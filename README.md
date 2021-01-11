@@ -14,7 +14,7 @@ pip install mofapy2
 Or install the latest development version from the repository:
 
 ```
-pip install http://github.com/bioFAM/mofapy2@dev --force-reinstall --no-deps
+pip install git+https://github.com/bioFAM/mofapy2@dev --force-reinstall --no-deps
 ```
 
 Please [visit our website](https://biofam.github.io/MOFA2/) for details, tutorials, and much more.
