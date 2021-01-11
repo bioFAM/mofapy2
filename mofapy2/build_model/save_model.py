@@ -119,7 +119,7 @@ class saveModel():
                     # Convert categorical columns
                     if col in cols_cat:
                         orig_type = self.samples_metadata[g].iloc[:,i_col].cat.categories.values.dtype
-                        self.samples_metadata[g][col] = self.samples_metadata[g].iloc[:,i_col].astype(orig_type)
+                        self.samples_metadata[g].iloc[:,i_col] = self.samples_metadata[g].iloc[:,i_col].astype(orig_type)
 
                     ctype = self.samples_metadata[g].iloc[:,i_col].dtype
                     
@@ -146,7 +146,7 @@ class saveModel():
                 cols = self.features_metadata[m].columns
                 cols_cat = cols[self.features_metadata[m].dtypes == "category"]
                 
-                for i_col col in enumerate(cols):
+                for i_col, col in enumerate(cols):
                     # Convert categorical columns
                     if col in cols_cat:
                         orig_type = self.features_metadata[m].iloc[:,i_col].cat.categories.values.dtype
