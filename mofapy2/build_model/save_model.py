@@ -14,11 +14,12 @@ from mofapy2.core.nodes import *
 def _make_unique(x):
     """Make values in the input list unique"""
     from collections import Counter
+    xs = list(x)
     y = list()
     c = Counter()
-    for item in x:
+    for item in xs:
         new_item = item
-        if x.count(item) > 1:
+        if xs.count(item) > 1:
             if c[item] == 0:
                 # First instance stays as it is
                 y.append(new_item)
@@ -28,7 +29,7 @@ def _make_unique(x):
                 new_item = '-'.join([item, str(c[item])])
                 c[item] += 1
         y.append(new_item)
-    return y
+    return np.array(y)
 
 class saveModel():
     def __init__(self, model, outfile, data, sample_cov, intercepts, samples_groups,
