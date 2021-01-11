@@ -1,4 +1,5 @@
 from __future__ import division
+from warnings import warn
 import numpy as np
 import scipy as s
 import pandas as pd
@@ -9,6 +10,25 @@ from mofapy2.core.nodes import *
 
 # To keep same order of views and groups in the hdf5 file
 # h5py.get_config().track_order = True
+
+def _make_unique(x):
+    """Make values in the input list unique"""
+    from collections import Counter
+    y = list()
+    c = Counter()
+    for item in x:
+        new_item = item
+        if x.count(item) > 1:
+            if c[item] == 0:
+                # First instance stays as it is
+                y.append(new_item)
+                c[item] += 1
+                continue
+            while new_item in x:
+                new_item = '-'.join([item, str(c[item])])
+                c[item] += 1
+        y.append(new_item)
+    return y
 
 class saveModel():
     def __init__(self, model, outfile, data, sample_cov, intercepts, samples_groups,
@@ -111,27 +131,31 @@ class saveModel():
             for g in range(len(self.groups_names)):
                 group_meta = samples_meta.create_group(self.groups_names[g])
                 cols = self.samples_metadata[g].columns
+                
+                if len(set(cols)) != len(cols):
+                    warn("There are duplicated columns in samples metadata, some will be renamed")
+                    cols = _make_unique(cols)
+                    self.samples_metadata[g].columns = cols
+                
                 cols_cat = cols[self.samples_metadata[g].dtypes == "category"]
                 
-                # Getting columns by their index
-                # accounts for the case with duplicated columns
-                for i_col, col in enumerate(cols):
+                for col in cols:
                     # Convert categorical columns
                     if col in cols_cat:
-                        orig_type = self.samples_metadata[g].iloc[:,i_col].cat.categories.values.dtype
-                        self.samples_metadata[g].iloc[:,i_col] = self.samples_metadata[g].iloc[:,i_col].astype(orig_type)
+                        orig_type = self.samples_metadata[g][col].cat.categories.values.dtype
+                        self.samples_metadata[g][col] = self.samples_metadata[g][col].astype(orig_type)
 
-                    ctype = self.samples_metadata[g].iloc[:,i_col].dtype
+                    ctype = self.samples_metadata[g][col].dtype
                     
                     if ctype == "object":
                         try:
                             # Try to encode as ASCII strings
-                            group_meta.create_dataset(col, data=np.array(self.samples_metadata[g].iloc[:,i_col], dtype="|S"))
+                            group_meta.create_dataset(col, data=np.array(self.samples_metadata[g][col], dtype="|S"))
                         except (UnicodeEncodeError, SystemError):
                             # Encode strings as Unicode
-                            group_meta.create_dataset(col, data=np.char.encode(self.samples_metadata[g].iloc[:,i_col].values.astype("U"), encoding='utf8'))
+                            group_meta.create_dataset(col, data=np.char.encode(self.samples_metadata[g][col].values.astype("U"), encoding='utf8'))
                     else:
-                        group_meta.create_dataset(col, data=np.array(self.samples_metadata[g].iloc[:,i_col], dtype=ctype.type))
+                        group_meta.create_dataset(col, data=np.array(self.samples_metadata[g][col], dtype=ctype.type))
                 # # Store objects as strings
                 # for col in cols[self.samples_metadata[g].dtypes == "object"]:
                 #     self.samples_metadata[g][col] = self.samples_metadata[g][col].astype("|S")
@@ -144,17 +168,23 @@ class saveModel():
             for m in range(len(self.views_names)):
                 view_meta = features_meta.create_group(self.views_names[m])
                 cols = self.features_metadata[m].columns
+            
+                if len(set(cols)) != len(cols):
+                    warn("There are duplicated columns in features metadata, some will be renamed")
+                    cols = _make_unique(cols)
+                    self.features_metadata[m].columns = cols
+                    
                 cols_cat = cols[self.features_metadata[m].dtypes == "category"]
                 
-                for i_col, col in enumerate(cols):
+                for col in cols:
                     # Convert categorical columns
                     if col in cols_cat:
-                        orig_type = self.features_metadata[m].iloc[:,i_col].cat.categories.values.dtype
-                        self.features_metadata[m].iloc[:,i_col] = self.features_metadata[m].iloc[:,i_col].astype(orig_type)
+                        orig_type = self.features_metadata[m][col].cat.categories.values.dtype
+                        self.features_metadata[m][col] = self.features_metadata[m][col].astype(orig_type)
 
-                    ctype = self.features_metadata[m].iloc[:,i_col].dtype
+                    ctype = self.features_metadata[m][col].dtype
                     ctype = '|S' if ctype == "object" else ctype.type
-                    view_meta.create_dataset(col, data=np.array(self.features_metadata[m].iloc[:,i_col], dtype=ctype))
+                    view_meta.create_dataset(col, data=np.array(self.features_metadata[m][col], dtype=ctype))
                 # types = [(cols[i], self.features_metadata[m][k].dtype) for (i, k) in enumerate(cols)]
                 # # Store objects as strings
                 # types = [(col, ctype.type) if ctype != "object" else (col, np.str) for col, ctype in types]
