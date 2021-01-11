@@ -111,23 +111,27 @@ class saveModel():
             for g in range(len(self.groups_names)):
                 group_meta = samples_meta.create_group(self.groups_names[g])
                 cols = self.samples_metadata[g].columns
-                # Convert all categorical columns
-                for col in cols[self.samples_metadata[g].dtypes == "category"]:
-                    orig_type = self.samples_metadata[g][col].cat.categories.values.dtype
-                    self.samples_metadata[g][col] = self.samples_metadata[g][col].astype(orig_type)
+                cols_cat = cols[self.samples_metadata[g].dtypes == "category"]
+                
+                # Getting columns by their index
+                # accounts for the case with duplicated columns
+                for i_col, col in enumerate(cols):
+                    # Convert categorical columns
+                    if col in cols_cat:
+                        orig_type = self.samples_metadata[g].iloc[:,i_col].cat.categories.values.dtype
+                        self.samples_metadata[g][col] = self.samples_metadata[g].iloc[:,i_col].astype(orig_type)
 
-                for col in cols:
-                    ctype = self.samples_metadata[g][col].dtype
+                    ctype = self.samples_metadata[g].iloc[:,i_col].dtype
                     
                     if ctype == "object":
                         try:
                             # Try to encode as ASCII strings
-                            group_meta.create_dataset(col, data=np.array(self.samples_metadata[g][col], dtype="|S"))
+                            group_meta.create_dataset(col, data=np.array(self.samples_metadata[g].iloc[:,i_col], dtype="|S"))
                         except (UnicodeEncodeError, SystemError):
                             # Encode strings as Unicode
-                            group_meta.create_dataset(col, data=np.char.encode(self.samples_metadata[g][col].values.astype("U"), encoding='utf8'))
+                            group_meta.create_dataset(col, data=np.char.encode(self.samples_metadata[g].iloc[:,i_col].values.astype("U"), encoding='utf8'))
                     else:
-                        group_meta.create_dataset(col, data=np.array(self.samples_metadata[g][col], dtype=ctype.type))
+                        group_meta.create_dataset(col, data=np.array(self.samples_metadata[g].iloc[:,i_col], dtype=ctype.type))
                 # # Store objects as strings
                 # for col in cols[self.samples_metadata[g].dtypes == "object"]:
                 #     self.samples_metadata[g][col] = self.samples_metadata[g][col].astype("|S")
@@ -140,16 +144,17 @@ class saveModel():
             for m in range(len(self.views_names)):
                 view_meta = features_meta.create_group(self.views_names[m])
                 cols = self.features_metadata[m].columns
-                # Convert all categorical columns
-                for col in cols[self.features_metadata[m].dtypes == "category"]:
-                    orig_type = self.features_metadata[m][col].cat.categories.values.dtype
-                    self.features_metadata[m][col] = self.features_metadata[m][col].astype(orig_type)
+                cols_cat = cols[self.features_metadata[m].dtypes == "category"]
+                
+                for i_col col in enumerate(cols):
+                    # Convert categorical columns
+                    if col in cols_cat:
+                        orig_type = self.features_metadata[m].iloc[:,i_col].cat.categories.values.dtype
+                        self.features_metadata[m].iloc[:,i_col] = self.features_metadata[m].iloc[:,i_col].astype(orig_type)
 
-                for col in cols:
-                    ctype = self.features_metadata[m][col].dtype
+                    ctype = self.features_metadata[m].iloc[:,i_col].dtype
                     ctype = '|S' if ctype == "object" else ctype.type
-                    # import pdb; pdb.set_trace()
-                    view_meta.create_dataset(col, data=np.array(self.features_metadata[m][col], dtype=ctype))
+                    view_meta.create_dataset(col, data=np.array(self.features_metadata[m].iloc[:,i_col], dtype=ctype))
                 # types = [(cols[i], self.features_metadata[m][k].dtype) for (i, k) in enumerate(cols)]
                 # # Store objects as strings
                 # types = [(col, ctype.type) if ctype != "object" else (col, np.str) for col, ctype in types]
