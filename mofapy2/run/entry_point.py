@@ -1270,6 +1270,7 @@ def mofa(adata, groups_label: bool = None, use_raw: bool = False, use_layer: boo
          save_parameters: bool = False, save_data: bool = True, save_metadata: bool = True,
          seed: int = 1, outfile: Optional[str] = None,
          expectations: Optional[List[str]] = None,
+         y_elbo_tau_trick: bool = True,
          save_interrupted: bool = False,
          verbose: bool = False, quiet: bool = True, copy: bool = False):
     """
@@ -1301,9 +1302,10 @@ def mofa(adata, groups_label: bool = None, use_raw: bool = False, use_layer: boo
     outfile (optional): path to HDF5 file to store the model
     expectations (optional): which nodes should be used to save expectations for (will save only W and Z by default);
     possible expectations names include Y, W, Z, Tau, AlphaZ, AlphaW, ThetaW, ThetaZ
+    y_elbo_tau_trick (optional): if to use Y ELBO Tau trick for Gaussian likelihoods (True by default, recommended)
     outfile (optional): output file name
     save_interrupted (optional): if to save partially trained model when the training is interrupted
-    verbose (optional): print verbose information during traing
+    verbose (optional): print verbose information during training
     quiet (optional): silence messages during training procedure
     copy (optional): return a copy of AnnData instead of writing to the provided object
     """
@@ -1319,7 +1321,7 @@ def mofa(adata, groups_label: bool = None, use_raw: bool = False, use_layer: boo
                           spikeslab_weights=spikeslab_weights, spikeslab_factors=spikeslab_factors, 
                           factors=n_factors)
     ent.set_train_options(iter=n_iterations, convergence_mode=convergence_mode, 
-                          gpu_mode=gpu_mode, Y_ELBO_TauTrick=Y_ELBO_TauTrick,
+                          gpu_mode=gpu_mode, Y_ELBO_TauTrick=y_elbo_tau_trick,
                           seed=seed, verbose=verbose, quiet=quiet, outfile=outfile, save_interrupted=save_interrupted)
 
     ent.build()
