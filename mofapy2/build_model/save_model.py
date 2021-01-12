@@ -1,4 +1,5 @@
 from __future__ import division
+from warnings import warn
 import numpy as np
 import scipy as s
 import pandas as pd
@@ -9,6 +10,26 @@ from mofapy2.core.nodes import *
 
 # To keep same order of views and groups in the hdf5 file
 # h5py.get_config().track_order = True
+
+def _make_unique(x):
+    """Make values in the input list unique"""
+    from collections import Counter
+    xs = list(x)
+    y = list()
+    c = Counter()
+    for item in xs:
+        new_item = item
+        if xs.count(item) > 1:
+            if c[item] == 0:
+                # First instance stays as it is
+                y.append(new_item)
+                c[item] += 1
+                continue
+            while new_item in x:
+                new_item = '-'.join([item, str(c[item])])
+                c[item] += 1
+        y.append(new_item)
+    return np.array(y)
 
 class saveModel():
     def __init__(self, model, outfile, data, sample_cov, intercepts, samples_groups,
@@ -111,12 +132,20 @@ class saveModel():
             for g in range(len(self.groups_names)):
                 group_meta = samples_meta.create_group(self.groups_names[g])
                 cols = self.samples_metadata[g].columns
-                # Convert all categorical columns
-                for col in cols[self.samples_metadata[g].dtypes == "category"]:
-                    orig_type = self.samples_metadata[g][col].cat.categories.values.dtype
-                    self.samples_metadata[g][col] = self.samples_metadata[g][col].astype(orig_type)
-
+                
+                if len(set(cols)) != len(cols):
+                    warn("There are duplicated columns in samples metadata, some will be renamed")
+                    cols = _make_unique(cols)
+                    self.samples_metadata[g].columns = cols
+                
+                cols_cat = cols[self.samples_metadata[g].dtypes == "category"]
+                
                 for col in cols:
+                    # Convert categorical columns
+                    if col in cols_cat:
+                        orig_type = self.samples_metadata[g][col].cat.categories.values.dtype
+                        self.samples_metadata[g][col] = self.samples_metadata[g][col].astype(orig_type)
+
                     ctype = self.samples_metadata[g][col].dtype
                     
                     if ctype == "object":
@@ -140,15 +169,22 @@ class saveModel():
             for m in range(len(self.views_names)):
                 view_meta = features_meta.create_group(self.views_names[m])
                 cols = self.features_metadata[m].columns
-                # Convert all categorical columns
-                for col in cols[self.features_metadata[m].dtypes == "category"]:
-                    orig_type = self.features_metadata[m][col].cat.categories.values.dtype
-                    self.features_metadata[m][col] = self.features_metadata[m][col].astype(orig_type)
-
+            
+                if len(set(cols)) != len(cols):
+                    warn("There are duplicated columns in features metadata, some will be renamed")
+                    cols = _make_unique(cols)
+                    self.features_metadata[m].columns = cols
+                    
+                cols_cat = cols[self.features_metadata[m].dtypes == "category"]
+                
                 for col in cols:
+                    # Convert categorical columns
+                    if col in cols_cat:
+                        orig_type = self.features_metadata[m][col].cat.categories.values.dtype
+                        self.features_metadata[m][col] = self.features_metadata[m][col].astype(orig_type)
+
                     ctype = self.features_metadata[m][col].dtype
                     ctype = '|S' if ctype == "object" else ctype.type
-                    # import pdb; pdb.set_trace()
                     view_meta.create_dataset(col, data=np.array(self.features_metadata[m][col], dtype=ctype))
                 # types = [(cols[i], self.features_metadata[m][k].dtype) for (i, k) in enumerate(cols)]
                 # # Store objects as strings
