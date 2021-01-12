@@ -1,8 +1,8 @@
+import numpy as np
 import scipy as s
 import scipy.special as special
 from .basic_distributions import Distribution
 
-# from mofapy2.core.utils import *
 from mofapy2 import config
 
 class Gamma(Distribution):
