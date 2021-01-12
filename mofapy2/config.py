@@ -1,11 +1,11 @@
-from dataclasses import dataclass
+# 
+# Global configuration
+# 
 
-# @dataclass
 class MOFAConfig:
 	"""
 	MOFA config manager
 	"""
-	# use_float32: bool = False
 	def __init__(self, use_float32: bool = False):
 		self.use_float32 = use_float32
 
