@@ -228,7 +228,7 @@ class entry_point(object):
                         data[m][p] = data[m][p].values
                     else:
                         print("Error, input data is not a numpy.ndarray or a pandas dataframe"); sys.stdout.flush(); sys.exit()
-                if config["use_float32"]:
+                if config.use_float32:
                     data[m][p] = data[m][p].astype(np.float32)
                 else:
                     data[m][p] = data[m][p].astype(np.float64)
@@ -948,7 +948,7 @@ class entry_point(object):
         self.data_opts['center_groups'] = center_groups
 
         # change from float64 to float32 (to decrease memory usage and improve speed)
-        config["use_float32"] = use_float32
+        config.use_float32 = use_float32
 
         # Scale views to unit variance
         self.data_opts['scale_views'] = scale_views
@@ -1266,7 +1266,7 @@ def mofa(adata, groups_label: bool = None, use_raw: bool = False, use_layer: boo
          ard_weights: bool = True, ard_factors: bool = True,
          spikeslab_weights: bool = True, spikeslab_factors: bool = False,
          n_iterations: int = 1000, convergence_mode: str = "fast",
-         gpu_mode: bool = False, 
+         gpu_mode: bool = False, use_float32: bool = False,
          save_parameters: bool = False, save_data: bool = True, save_metadata: bool = True,
          seed: int = 1, outfile: Optional[str] = None,
          expectations: Optional[List[str]] = None,
@@ -1295,6 +1295,7 @@ def mofa(adata, groups_label: bool = None, use_raw: bool = False, use_layer: boo
     n_iterations (optional): upper limit on the number of iterations
     convergence_mode (optional): fast, medium, or slow convergence mode
     gpu_mode (optional): if to use GPU mode
+    use_float32 (optional): if to use float32 precision
     save_parameters (optional): if to save training parameters
     save_data (optional): if to save training data
     save_metadata (optional): if to load metadata from the AnnData object (.obs and .var tables) and save it, False by default
@@ -1314,7 +1315,7 @@ def mofa(adata, groups_label: bool = None, use_raw: bool = False, use_layer: boo
 
     lik = [likelihood] if likelihood is not None else None
 
-    ent.set_data_options(scale_views=scale_views, scale_groups=scale_groups)
+    ent.set_data_options(scale_views=scale_views, scale_groups=scale_groups, use_float32=use_float32)
     ent.set_data_from_anndata(adata, groups_label=groups_label, use_raw=use_raw, use_layer=use_layer,
                               likelihoods=lik, features_subset=features_subset, save_metadata=save_metadata)
     ent.set_model_options(ard_factors=ard_factors, ard_weights=ard_weights, 

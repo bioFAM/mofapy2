@@ -37,7 +37,7 @@ class UnivariateGaussian(Distribution):
             self.expectations['E2'] = s.ones(dim)*E2
 
         # float64 -> float32
-        if config["use_float32"]: self.to_float32()
+        if config.use_float32: self.to_float32()
 
         # Check that dimensionalities match
         self.CheckDimensionalities()

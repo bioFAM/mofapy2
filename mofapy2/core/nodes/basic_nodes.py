@@ -92,7 +92,7 @@ class Constant_Node(Node):
     def __init__(self, dim, value):
         self.dim = dim
         if isinstance(value,(int,float)):
-            if config["use_float32"]:
+            if config.use_float32:
                 self.value = value * s.ones(dim, dtype=np.float32)
             else:
                 self.value = value * s.ones(dim, dtype=np.float64)

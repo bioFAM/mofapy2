@@ -35,7 +35,7 @@ class Gamma(Distribution):
             self.expectations = { 'E':s.ones(dim)*E, 'lnE':s.ones(dim)*lnE }
 
         # float64 -> float32
-        if config["use_float32"]: self.to_float32()
+        if config.use_float32: self.to_float32()
 
         # Check that dimensionalities match
         self.CheckDimensionalities()
