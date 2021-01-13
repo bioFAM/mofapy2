@@ -749,6 +749,7 @@ class entry_point(object):
 
         # Weight the views to avoid imbalance problems?
         self.train_opts['weight_views'] = weight_views
+        if weight_views: print("\nweight_views set to True. Weighting the ELBO (the objective function) based on the number of features per view\n")
 
         # Output file name
         self.train_opts['outfile'] = outfile
