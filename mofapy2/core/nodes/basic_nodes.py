@@ -10,6 +10,8 @@ All nodes have two main attributes:
 import scipy as s
 import numpy as np
 
+from mofapy2 import config
+
 
 class Node(object):
     """General class for a node in a Bayesian network
@@ -90,7 +92,10 @@ class Constant_Node(Node):
     def __init__(self, dim, value):
         self.dim = dim
         if isinstance(value,(int,float)):
-            self.value = value * s.ones(dim)
+            if config.use_float32:
+                self.value = value * s.ones(dim, dtype=np.float32)
+            else:
+                self.value = value * s.ones(dim, dtype=np.float64)
         else:
             assert value.shape == dim, "dimensionality mismatch"
             self.value = value

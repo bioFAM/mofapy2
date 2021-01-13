@@ -16,8 +16,7 @@ from mofapy2.build_model.utils import guess_likelihoods
 from mofapy2.build_model.train_model import train_model
 from mofapy2.core import gp_utils
 
-# import matplotlib.pyplot as plt
-
+from mofapy2 import config
 
 
 def keyboardinterrupt_saver(func):
@@ -70,8 +69,10 @@ class entry_point(object):
         self.print_banner()
         self.dimensionalities = {"C":0}
         self.model = None
-        self.imputed = False # flag
-        self.Zcompleted = False # flag
+
+        # flags
+        self.imputed = False     # probabilistic imputation
+        self.Zcompleted = False  # mefisto
 
     def print_banner(self):
         """ Method to print the mofapy2 banner """
@@ -227,7 +228,10 @@ class entry_point(object):
                         data[m][p] = data[m][p].values
                     else:
                         print("Error, input data is not a numpy.ndarray or a pandas dataframe"); sys.stdout.flush(); sys.exit()
-                data[m][p] = data[m][p].astype(np.float64)
+                if config.use_float32:
+                    data[m][p] = data[m][p].astype(np.float32)
+                else:
+                    data[m][p] = data[m][p].astype(np.float64)
 
         # Save dimensionalities
         M = self.dimensionalities["M"] = len(data)
@@ -938,11 +942,14 @@ class entry_point(object):
           print("- View %d (%s): %s" % (m,self.data_opts["views_names"][m],self.likelihoods[m]) )
         print("\n")
 
-    def set_data_options(self, scale_views=False, scale_groups = False, center_groups = True):
+    def set_data_options(self, scale_views=False, scale_groups = False, center_groups = True, use_float32 = False):
         """ Set data processing options """
 
         if not hasattr(self, 'data_opts'): self.data_opts = {}
         self.data_opts['center_groups'] = center_groups
+
+        # change from float64 to float32 (to decrease memory usage and improve speed)
+        config.use_float32 = use_float32
 
         # Scale views to unit variance
         self.data_opts['scale_views'] = scale_views
@@ -1260,10 +1267,11 @@ def mofa(adata, groups_label: bool = None, use_raw: bool = False, use_layer: boo
          ard_weights: bool = True, ard_factors: bool = True,
          spikeslab_weights: bool = True, spikeslab_factors: bool = False,
          n_iterations: int = 1000, convergence_mode: str = "fast",
-         gpu_mode: bool = False, 
+         gpu_mode: bool = False, use_float32: bool = False,
          save_parameters: bool = False, save_data: bool = True, save_metadata: bool = True,
          seed: int = 1, outfile: Optional[str] = None,
          expectations: Optional[List[str]] = None,
+         y_elbo_tau_trick: bool = True,
          save_interrupted: bool = False,
          verbose: bool = False, quiet: bool = True, copy: bool = False):
     """
@@ -1288,6 +1296,7 @@ def mofa(adata, groups_label: bool = None, use_raw: bool = False, use_layer: boo
     n_iterations (optional): upper limit on the number of iterations
     convergence_mode (optional): fast, medium, or slow convergence mode
     gpu_mode (optional): if to use GPU mode
+    use_float32 (optional): if to use float32 precision
     save_parameters (optional): if to save training parameters
     save_data (optional): if to save training data
     save_metadata (optional): if to load metadata from the AnnData object (.obs and .var tables) and save it, False by default
@@ -1295,9 +1304,10 @@ def mofa(adata, groups_label: bool = None, use_raw: bool = False, use_layer: boo
     outfile (optional): path to HDF5 file to store the model
     expectations (optional): which nodes should be used to save expectations for (will save only W and Z by default);
     possible expectations names include Y, W, Z, Tau, AlphaZ, AlphaW, ThetaW, ThetaZ
+    y_elbo_tau_trick (optional): if to use Y ELBO Tau trick for Gaussian likelihoods (True by default, recommended)
     outfile (optional): output file name
     save_interrupted (optional): if to save partially trained model when the training is interrupted
-    verbose (optional): print verbose information during traing
+    verbose (optional): print verbose information during training
     quiet (optional): silence messages during training procedure
     copy (optional): return a copy of AnnData instead of writing to the provided object
     """
@@ -1306,14 +1316,14 @@ def mofa(adata, groups_label: bool = None, use_raw: bool = False, use_layer: boo
 
     lik = [likelihood] if likelihood is not None else None
 
-    ent.set_data_options(scale_views=scale_views, scale_groups=scale_groups)
+    ent.set_data_options(scale_views=scale_views, scale_groups=scale_groups, use_float32=use_float32)
     ent.set_data_from_anndata(adata, groups_label=groups_label, use_raw=use_raw, use_layer=use_layer,
                               likelihoods=lik, features_subset=features_subset, save_metadata=save_metadata)
     ent.set_model_options(ard_factors=ard_factors, ard_weights=ard_weights, 
                           spikeslab_weights=spikeslab_weights, spikeslab_factors=spikeslab_factors, 
                           factors=n_factors)
     ent.set_train_options(iter=n_iterations, convergence_mode=convergence_mode, 
-                          gpu_mode=gpu_mode, Y_ELBO_TauTrick=Y_ELBO_TauTrick,
+                          gpu_mode=gpu_mode, Y_ELBO_TauTrick=y_elbo_tau_trick,
                           seed=seed, verbose=verbose, quiet=quiet, outfile=outfile, save_interrupted=save_interrupted)
 
     ent.build()
