@@ -910,16 +910,15 @@ class entry_point(object):
         self.model_opts['spikeslab_weights'] = spikeslab_weights
 
         # Define whether to use group and factor-wise ARD prior for Z
-        # if ((self.dimensionalities["G"]>1) & (ard_factors==False)): 
-        #     print("WARNING: 'ard_factors' should be set to True in model_options if using multiple groups\n")
-        # always use the ARD prior on Z with more than one group except when using GPs
-        if self.dimensionalities["G"]>1: ard_factors = True
+        if ((self.dimensionalities["G"]>1) & (ard_factors==False)): 
+            print("WARNING: 'ard_factors' should be set to True if using multiple groups\n")
+        # if self.dimensionalities["G"]>1: ard_factors = True
         self.model_opts['ard_factors'] = ard_factors
 
         # Define whether to use view and factor-wise ARD prior for W
-        # if ((self.dimensionalities["M"]>1) & (ard_weights==False)): 
-        #     print("WARNING: 'ard_weights' should be set to True in model_options if using multiple views\n")
-        if self.dimensionalities["M"]>1: ard_weights = True
+        if ((self.dimensionalities["M"]>1) & (ard_weights==False)): 
+            print("WARNING: 'ard_weights' should be set to True if using multiple views\n")
+        # if self.dimensionalities["M"]>1: ard_weights = True
         self.model_opts['ard_weights'] = ard_weights
 
         # Define initial number of latent factors
