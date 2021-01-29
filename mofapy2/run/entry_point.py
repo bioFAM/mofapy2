@@ -946,6 +946,7 @@ class entry_point(object):
 
         # change from float64 to float32 (to decrease memory usage and improve speed)
         config.use_float32 = use_float32
+        if (use_float32): print("use_float32 set to True: replacing float64 arrays by float32 arrays to speed up computations...\n")
 
         # Scale views to unit variance
         self.data_opts['scale_views'] = scale_views
