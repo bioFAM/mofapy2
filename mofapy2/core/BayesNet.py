@@ -193,10 +193,9 @@ class BayesNet(object):
             self.nodes[n].precompute(self.options)
 
         # Precompute ELBO
-        for node in self.nodes["Y"].getNodes(): node.TauTrick = False # important to do this for ELBO computation
+        # for node in self.nodes["Y"].getNodes(): node.TauTrick = False # important to do this for ELBO computation
         elbo = self.calculateELBO()
-        # for node in self.nodes["Y"].getNodes(): node.TauTrick = self.options["Y_ELBO_TauTrick"]
-        for node in self.nodes["Y"].getNodes(): node.TauTrick = True
+        # for node in self.nodes["Y"].getNodes(): node.TauTrick = True
 
         if self.options['verbose']:
             print("ELBO before training:")
@@ -355,11 +354,11 @@ class BayesNet(object):
 
         # Assess convergence based on the fraction of deltaELBO change
         if self.options["convergence_mode"] == "fast":
-            convergence_threshold = 0.0001
+            convergence_threshold = 0.001
         elif self.options["convergence_mode"] == "medium":
-            convergence_threshold = 0.00001
+            convergence_threshold = 0.0001
         elif self.options["convergence_mode"] == "slow":
-            convergence_threshold = 0.000001
+            convergence_threshold = 0.00001
         else:
             print("Convergence mode not recognised"); exit()
 

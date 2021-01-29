@@ -479,7 +479,7 @@ class saveModel():
         #     del opts['convergence_mode']
 
         # Remove some training options
-        # del opts['quiet']; del opts['start_drop']; del opts['freq_drop']; del opts['forceiter']; del opts['start_sparsity']; del opts['Y_ELBO_TauTrick']
+        # del opts['quiet']; del opts['start_drop']; del opts['freq_drop']; del opts['forceiter']; del opts['start_sparsity']
 
         # Create data set: only numeric options 
         self.hdf5.create_dataset("training_opts", data=np.array(list(opts.values()), dtype=np.float))
