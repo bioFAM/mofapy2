@@ -911,13 +911,13 @@ class entry_point(object):
 
         # Define whether to use group and factor-wise ARD prior for Z
         if ((self.dimensionalities["G"]>1) & (ard_factors==False)): 
-            print("WARNING: 'ard_factors' should be set to True if using multiple groups\n")
+            print("WARNING: 'ard_factors' in model_options should be set to True if using multiple groups\n")
         # if self.dimensionalities["G"]>1: ard_factors = True
         self.model_opts['ard_factors'] = ard_factors
 
         # Define whether to use view and factor-wise ARD prior for W
         if ((self.dimensionalities["M"]>1) & (ard_weights==False)): 
-            print("WARNING: 'ard_weights' should be set to True if using multiple views\n")
+            print("WARNING: 'ard_weights' in model_options should be set to True if using multiple views\n")
         # if self.dimensionalities["M"]>1: ard_weights = True
         self.model_opts['ard_weights'] = ard_weights
 
