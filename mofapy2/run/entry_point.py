@@ -911,7 +911,7 @@ class entry_point(object):
 
         # Define whether to use group and factor-wise ARD prior for Z
         if ((self.dimensionalities["G"]>1) & (ard_factors==False)): 
-            print("WARNING: 'ard_factors' in model_options should be set to True if using multiple groups\n")
+            print("WARNING: 'ard_factors' in model_options should be set to True if using multiple groups unless you are using MEFISTO\n")
         # if self.dimensionalities["G"]>1: ard_factors = True
         self.model_opts['ard_factors'] = ard_factors
 
