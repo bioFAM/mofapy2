@@ -652,8 +652,9 @@ class entry_point(object):
 
         self.train_opts = {}
 
-        # Maximum number of iterations
+        # Maximum and minimum number of iterations
         self.train_opts['maxiter'] = int(iter)
+        self.train_opts['min_iter'] = 0
 
         # Lower bound computation frequency
         if freqELBO is None or freqELBO==0: freqELBO=iter+1
@@ -858,6 +859,11 @@ class entry_point(object):
             print("##")
             print("## Warping set to True: aligning the covariates across groups")
             print("##")
+
+        # Set a minium number of training iterations based on start of optimization and warping
+        self.train_opts['min_iter'] =  self.smooth_opts['start_opt']
+        if self.smooth_opts['warping']:
+            self.train_opts['min_iter'] = max(self.train_opts['min_iter'], self.smooth_opts['warping_freq']) + 1
 
        # Sparse GPs
         if sparseGP is True:
