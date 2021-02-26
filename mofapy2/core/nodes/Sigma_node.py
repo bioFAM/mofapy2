@@ -209,6 +209,11 @@ class Sigma_Node_base(Node):
         x = self.Kg.get_x()
         return x
 
+    def get_sharedness(self):
+        Kgs = self.Kg.Kmat
+        sharedness = np.array([np.tril(np.abs((Kgs[k,:,:] - np.eye(self.G)))).sum()/(self.G * (self.G -1)/2) for k in range(self.K)])
+        return sharedness
+
     def get_sigma(self):
         """
         Method to get sigma hyperparameter
@@ -671,6 +676,7 @@ class Sigma_Node_warping(Sigma_Node_base):
         super().__init__(dim, sample_cov, groups, start_opt, opt_freq, n_grid, rankx, model_groups)
 
         self.kronecker = False
+        self.new_alignment = False
 
         # set warping options
         self.G4warping = len(self.groups) # number of groups to consider for warping (if no group kernel this differs from self.G)
@@ -696,6 +702,7 @@ class Sigma_Node_warping(Sigma_Node_base):
         # covariate kernel is initialized after first warping
         self.Kc = None
 
+
     def updateParameters(self, ix, ro):
         """
         Public method to update the nodes parameters
@@ -705,10 +712,17 @@ class Sigma_Node_warping(Sigma_Node_base):
             ZE = self.markov_blanket['Z'].getExpectation()
             self.align_sample_cov_dtw(ZE)
             print("Covariates were aligned between groups.")
+            self.new_alignment = True
 
         if self.iter >= self.start_opt and self.iter % self.opt_freq == 0:
             var = self.markov_blanket['Z']
             self.optimise(var)
+
+            # after a new alignment check that a sufficient smoothness and sharedness is present for a sensible alignment
+            if self.new_alignment and (all(1-self.get_zeta() < 0.3) or all(self.get_sharedness()< 0.3)):
+                print("Factors show little shared smooth variation - alignment discarded, using original covariates.")
+                self.sample_cov_transformed = self.sample_cov
+                self.new_alignment = False
 
 
     def align_sample_cov_dtw(self, Z):
