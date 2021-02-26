@@ -10,7 +10,7 @@ from mofapy2.core.gp_utils import covar_to_corr
 
 def simulate_data(N=200, seed=1234567, views = ["0", "1", "2", "3"], D = [500, 200, 500, 200], noise_level = 1,
                   K = 4, G = 1, lscales = [0.2, 0.8, 0.0, 0.0], sample_cov = "equidistant", scales = [1, 0.8, 0, 0],
-                  shared = True, plot = False):
+                  shared = True, plot = False, alpha = None):
     """
     Function to simulate test data for MOFA (without ARD or spike-and-slab on factors)
 
@@ -28,6 +28,7 @@ def simulate_data(N=200, seed=1234567, views = ["0", "1", "2", "3"], D = [500, 2
     For non-shared ones pairwise group-group correlations are simulated by a Bernoulli distribution.
     Only relevant for factors with lengthscale and scale > 0.
     plot: If True, simulation results are plotted
+    alpha: Pre-set activity for different views per factor. Needs to be a list of length M with arrays of length K. Default is None and will be drawn at random.
     """
 
     # simulate some test data
@@ -100,14 +101,18 @@ def simulate_data(N=200, seed=1234567, views = ["0", "1", "2", "3"], D = [500, 2
         Z.append(Zks[groupidx == g,])
 
     # simulate alpha and theta, each factor should be active in at least one view
-    inactive = 1000
-    active = 1
     theta = 0.5 * np.ones([M, K])
-    alpha_tmp = [s.ones(M) * inactive]*K
-    for k in range(K):
-        while s.all(alpha_tmp[k]==inactive):
-            alpha_tmp[k] = s.random.choice([active,inactive], size=M, replace=True)
-    alpha = [ s.array(alpha_tmp)[:,m] for m in range(M) ]
+    if alpha is None:
+        inactive = 1000
+        active = 1
+        alpha_tmp = [s.ones(M) * inactive]*K
+        for k in range(K):
+            while s.all(alpha_tmp[k]==inactive):
+                alpha_tmp[k] = s.random.choice([active,inactive], size=M, replace=True)
+        alpha = [ s.array(alpha_tmp)[:,m] for m in range(M) ]
+    else:
+        assert len(alpha) == M
+        assert len(alpha[0]) == K
 
     # simulate weights
     W = []
