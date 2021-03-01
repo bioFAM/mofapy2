@@ -199,7 +199,10 @@ class Sigma_Node_base(Node):
         """
         Method to fetch ELBO-optimal length-scales
         """
-        ls = self.Kc.get_ls()
+        if hasattr(self, 'Kc') and self.Kc is not None:
+            ls = self.Kc.get_ls()
+        else:
+            ls = np.array([np.nan] * self.K)
         return ls
 
     def get_x(self):
