@@ -791,7 +791,7 @@ class entry_point(object):
 
     def set_smooth_options(self, scale_cov = False, start_opt=20, n_grid=20, opt_freq=10, model_groups = True,
         warping = False, warping_freq = 20, warping_ref = 0, warping_open_begin = True, warping_open_end = True,
-        sparseGP = False, frac_inducing = None):
+        sparseGP = False, frac_inducing = None, mv_Znode = True):
 
         """ 
         Method to activate and set options for a functional MOFA model (MEFISTO).
@@ -819,6 +819,7 @@ class entry_point(object):
 
         # activate GP prior on factors
         self.smooth_opts['GP_factors'] = True
+        self.smooth_opts['mv_Znode'] = mv_Znode
 
         # Define whether to scale covariates to unit variance
         self.smooth_opts['scale_cov'] = scale_cov
@@ -1115,7 +1116,7 @@ class entry_point(object):
 
         self.Zcompleted = True
 
-    def impute(self, uncertainty=True, mask_outliers = True):
+    def impute(self, uncertainty=True, mask_outliers = True, keep_observed = True):
         """
         impute missing values with or without uncertainty estimates
         """
@@ -1149,10 +1150,11 @@ class entry_point(object):
             self.imputed_data = { "mean":pred_mean, "variance":None }
 
         # Only impute missing data
-        for m in range(len(W)):
-            mask = self.model.nodes['Y'].getNodes()[m].getMask()
-            self.imputed_data["mean"][m][~mask] = self.data[m][~mask]
-            self.imputed_data["variance"][m][~mask] = np.nan
+        if keep_observed:
+            for m in range(len(W)):
+                mask = self.model.nodes['Y'].getNodes()[m].getMask()
+                self.imputed_data["mean"][m][~mask] = self.data[m][~mask]
+                self.imputed_data["variance"][m][~mask] = np.nan
 
         self.imputed = True # change flag
 

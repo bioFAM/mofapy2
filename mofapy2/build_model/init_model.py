@@ -129,7 +129,7 @@ class initModel(object):
             qE=qE, qE2=qE2, weight_views = weight_views
         )
 
-    def initZ_smooth(self, pmean=0., pvar=1., qmean="random", qvar=1., qE=None, qE2=None, Y=None, impute=False, weight_views = False):
+    def initZ_smooth(self, pmean=0., pvar=1., qmean="random", qvar=1., qE=None, qE2=None, Y=None, impute=False, weight_views = False, mv_Znode = True):
         """Method to initialise the latent variables
 
         PARAMETERS
@@ -203,20 +203,22 @@ class initModel(object):
                 exit()
 
         # Initialise the node
-        self.nodes["Z"] = Z_GP_Node_mv(
-            dim=(self.N, self.K),
-            pmean=pmean, pcov=pvar,
-            qmean=qmean, qcov=qvar,
-            qE=qE, 
-            weight_views = weight_views
-        )
-        # self.nodes["Z"] = Z_GP_Node(
-        #     dim=(self.N, self.K),
-        #     pmean=pmean, pcov=pvar,
-        #     qmean=qmean, qvar=qvar,
-        #     qE=qE, 
-        #     weight_views = weight_views
-        # )
+        if mv_Znode:
+            self.nodes["Z"] = Z_GP_Node_mv(
+                dim=(self.N, self.K),
+                pmean=pmean, pcov=pvar,
+                qmean=qmean, qcov=qvar,
+                qE=qE, 
+                weight_views = weight_views
+            )
+        else:
+            self.nodes["Z"] = Z_GP_Node(
+                dim=(self.N, self.K),
+                pmean=pmean, pcov=pvar,
+                qmean=qmean, qvar=qvar,
+                qE=qE, 
+                weight_views = weight_views
+            )
 
     def initU(self, pmean=0., pvar=1., qmean=0, qvar=1., qE=None, qE2=None, Y = None, impute=True, idx_inducing = None, weight_views = False): # prior has diagonal covariance here, ls optimiation in Sigma node
         """Method to initialise the inducing points

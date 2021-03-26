@@ -217,7 +217,8 @@ class build_mofa_smooth(buildBiofam):
             qmean="pca", 
             Y=self.data, 
             impute=True,
-            weight_views = self.train_opts['weight_views']
+            weight_views = self.train_opts['weight_views'],
+            mv_Znode = self.smooth_opts['mv_Znode']
         )
 
     def build_ZgU(self):
