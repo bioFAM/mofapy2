@@ -26,8 +26,8 @@ class Z_GP_Node(UnivariateGaussian_Unobserved_Variational_Node_with_Multivariate
 
         # Precompute terms (inverse covariance ant its determinant for each factor) to speed up computation
         tmp = self.P.params['cov']
-        self.p_cov_inv = np.array([s.linalg.inv(cov) for cov in tmp]) # TODO speed-ups
-        self.p_cov_inv_diag = np.array([s.diag(c) for c in self.p_cov_inv]) # TODO speed-ups
+        self.p_cov_inv = np.array([s.linalg.inv(cov) for cov in tmp])
+        self.p_cov_inv_diag = np.array([s.diag(c) for c in self.p_cov_inv])
 
     def add_characteristics(self, struct=None, length_scales=None):
         self.struct = np.array(struct)
@@ -69,9 +69,9 @@ class Z_GP_Node(UnivariateGaussian_Unobserved_Variational_Node_with_Multivariate
             if ix is not None: Alpha = Alpha[ix,:]
 
         if "Sigma" in self.markov_blanket:
-            Sigma = self.markov_blanket['Sigma'].get_mini_batch()
+            Sigma = self.markov_blanket['Sigma'].getInverseTerms()
             p_cov_inv = Sigma['inv']
-            p_cov_inv_diag = Sigma['inv_diag']
+            p_cov_inv_diag = np.array([s.diag(c) for c in p_cov_inv])
         else:
             p_cov_inv = self.p_cov_inv
             p_cov_inv_diag = self.p_cov_inv_diag
@@ -155,6 +155,28 @@ class Z_GP_Node(UnivariateGaussian_Unobserved_Variational_Node_with_Multivariate
         # Save updated parameters of the Q distribution
         return {'Qmean': Qmean, 'Qvar':Qvar}
 
+    def calcELBOgrad_k(self, k, gradSigma):
+        """
+        Method to calculate ELBO gradients per factor - required for optimization in Sigma node
+        """
+        Qpar, Qexp = self.Q.getParameters(), self.Q.getExpectations()
+        Qmean, Qvar = Qpar['mean'], Qpar['var']
+        QE = Qexp['E']
+
+        if 'Sigma' in self.markov_blanket:
+            Sigma = self.markov_blanket['Sigma'].getInverseTerms()
+            p_cov_inv = Sigma['inv']
+            p_cov_inv_logdet = Sigma['inv_logdet']
+        else:
+            p_cov = self.P.params['cov']
+            p_cov_inv = self.p_cov_inv
+            p_cov_inv_logdet = np.linalg.slogdet(self.p_cov_inv)[1]
+
+        term1 = - 0.5 * np.trace(gpu_utils.dot(gradSigma, p_cov_inv[k, :,:]))
+        term2 = 0.5 * np.trace(gpu_utils.dot(p_cov_inv[k, :,:], gpu_utils.dot(gradSigma, gpu_utils.dot(p_cov_inv[k, :,:],  np.diag(Qvar[k, :])))))
+        term3 = 0.5 * gpu_utils.dot(QE[:, k].transpose(), gpu_utils.dot(p_cov_inv[k, :,:], gpu_utils.dot(gradSigma, gpu_utils.dot(p_cov_inv[k, :,:], QE[:,k]))))
+        return term1 + term2 + term3
+
     def calculateELBO_k(self, k):
         """ Method to calulcate the ELBO term for the k-th factor (required for the grid search on the optimal lengthscale in sigma per factor) """
 
@@ -165,9 +187,8 @@ class Z_GP_Node(UnivariateGaussian_Unobserved_Variational_Node_with_Multivariate
 
         if 'Sigma' in self.markov_blanket:
             Sigma = self.markov_blanket['Sigma'].getExpectations()
-            p_cov = Sigma['cov']
             p_cov_inv = Sigma['inv']
-            p_cov_inv_diag = Sigma['inv_diag']
+            p_cov_inv_diag = np.array([s.diag(c) for c in p_cov_inv])
             p_cov_inv_logdet = Sigma['inv_logdet']
         else:
             p_cov = self.P.params['cov']

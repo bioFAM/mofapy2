@@ -212,6 +212,7 @@ class initModel(object):
                 weight_views = weight_views
             )
         else:
+            qvar = s.array([np.diag(qvar[k,:,:]) for k in range(self.K)]).transpose() # diagonal covariance qZ
             self.nodes["Z"] = Z_GP_Node(
                 dim=(self.N, self.K),
                 pmean=pmean, pcov=pvar,
