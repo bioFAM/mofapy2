@@ -332,7 +332,7 @@ class initModel(object):
         )
 
     def initSigma(self, sample_cov, start_opt = 20, n_grid = 10,
-        opt_freq = 10, model_groups = False, use_gpytorch = False):
+        opt_freq = 10, model_groups = False, use_gpytorch = False, init_method_Kg = "full"):
 
         self.Sigma = Sigma_Node(
             dim=(self.K,), 
@@ -346,7 +346,7 @@ class initModel(object):
         self.nodes["Sigma"] = self.Sigma
 
     def initSigma_sparse(self, sample_cov, start_opt = 20, n_grid = 10, idx_inducing = None, 
-        opt_freq = 10, model_groups = False, use_gpytorch = False):
+        opt_freq = 10, model_groups = False, use_gpytorch = False, init_method_Kg = "full"):
 
         self.Sigma = Sigma_Node_sparse(
             dim=(self.K,), 
@@ -362,7 +362,7 @@ class initModel(object):
 
     def initSigma_warping(self, sample_cov, start_opt = 20, n_grid = 10, 
         warping_freq = 20, warping_ref = 0, warping_open_begin = True, warping_open_end =True,
-        opt_freq = 10, model_groups = False, use_gpytorch = False):
+        opt_freq = 10, model_groups = False, use_gpytorch = False, init_method_Kg = "full"):
 
         self.Sigma = Sigma_Node_warping(
             dim=(self.K,), 

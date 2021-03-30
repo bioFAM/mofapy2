@@ -260,7 +260,8 @@ class build_mofa_smooth(buildBiofam):
                     n_grid = self.smooth_opts['n_grid'],
                     idx_inducing = self.smooth_opts['idx_inducing'],
                     opt_freq = self.smooth_opts['opt_freq'],
-                    model_groups = self.smooth_opts['model_groups']
+                    model_groups = self.smooth_opts['model_groups'],
+                    init_method_Kg = self.smooth_opts['init_method_Kg']
                 )
 
         # Non-sparse GPs
@@ -276,7 +277,8 @@ class build_mofa_smooth(buildBiofam):
                     warping_open_begin = self.smooth_opts['warping_open_begin'],
                     warping_open_end = self.smooth_opts['warping_open_end'],
                     opt_freq = self.smooth_opts['opt_freq'],
-                    model_groups = self.smooth_opts['model_groups']#,
+                    model_groups = self.smooth_opts['model_groups'],
+                    init_method_Kg = self.smooth_opts['init_method_Kg']#,
                     # use_gpytorch  = self.model_opts['use_gpytorch']
                 )
             # Non-warping
@@ -292,7 +294,8 @@ class build_mofa_smooth(buildBiofam):
                     # warping_open_begin = self.smooth_opts['warping_open_begin'],
                     # warping_open_end = self.smooth_opts['warping_open_end'],
                     opt_freq = self.smooth_opts['opt_freq'],
-                    model_groups = self.smooth_opts['model_groups']#,
+                    model_groups = self.smooth_opts['model_groups'],
+                    init_method_Kg = self.smooth_opts['init_method_Kg']#,
                     # use_gpytorch  = self.model_opts['use_gpytorch']
                 )
 

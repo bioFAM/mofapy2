@@ -41,10 +41,11 @@ class Sigma_Node_base(Node):
     n_grid: number of grid points to optimize the lengthscale on
     rankx: rank of group covariance matrix \sum_rank x^T x, default: 1
     model_groups: whether to use a group kernel on top of the covariate kernel? If False, the group kernel corresponds to 1 for each pair of group.
+    initKg: initilization method for group kernel parameters - full: all groups connected; pca: based on first components
     """
 
     def __init__(self, dim, sample_cov, groups, start_opt=20, opt_freq = 10,
-                 n_grid = 10, rankx = None,  model_groups = False):
+                 n_grid = 10, rankx = None,  model_groups = False, init_method_Kg = "full"):
         super().__init__(dim)
 
         # dimensions and inputs
@@ -76,15 +77,18 @@ class Sigma_Node_base(Node):
         if self.model_groups:
             self.G = len(self.groups)  # number of groups
             if rankx is None:
-                rankx = 1
+                self.rankx = 1
                 # if self.G < 50:
                 #     rankx = 1
                 # else:
                 #     rankx = 2
+            else:
+                self.rankx = rankx
             self.kronecker = np.all([np.all(self.sample_cov_transformed[self.groupsidx == 0] ==
                                              self.sample_cov_transformed[self.groupsidx == g]) for g in
                                              range(self.G)])
-            self.initKg(rank = rankx, spectral_decomp = self.kronecker)
+            self.init_method_Kg = init_method_Kg
+            self.initKg(rank = self.rankx, spectral_decomp = self.kronecker, init = "full")
         else:
             # all samples are modelled jointly in the covariate kernel
             self.Kg = None
@@ -110,12 +114,32 @@ class Sigma_Node_base(Node):
         self.Kc = Kc_Node(dim=(self.K, self.C), covariates=self.covariates, n_grid=self.n_grid, cov4grid=cov4grid,
                           spectral_decomp=spectral_decomp)
 
-    def initKg(self, rank, spectral_decomp):
+    def initKg(self, rank, spectral_decomp, init):
         """
         Method to initialize the group kernel
         """
         # set group kernel
-        self.Kg = Kg_Node(dim=(self.K, self.G), rank=rank, spectral_decomp=spectral_decomp)
+        if init == "pca":
+            ZE = self.markov_blanket['Z'].getExpectation()
+            df = pd.DataFrame(ZE)
+            df.columns = ["Factor_%s" % s for s in range(ZE.shape[1])]
+            df['group'] = self.groupsidx
+            for c in range(self.sample_cov_transformed.shape[1]):
+                df['covariates_%s'%c] = self.sample_cov_transformed[:,c]
+            index_cols = df.columns.values[["covariates_" in x for x in df.columns]]
+            x = []
+            for f in ["Factor_%s" % s for s in range(ZE.shape[1])]:
+                mat = df.pivot_table(index="group", columns = index_cols.tolist(), values = f)
+                cov = np.cov(mat)
+                ev , eig = np.linalg.eig(cov)
+                idx = np.argsort(ev)[::-1]
+                eig = eig[:,idx]
+                x.append(eig[:,range(rank)].transpose())
+
+            self.Kg = Kg_Node(dim=(self.K, self.G), rank=rank, spectral_decomp=spectral_decomp, init = init, x = x)
+        else:
+            x = None
+        self.Kg = Kg_Node(dim=(self.K, self.G), rank=rank, spectral_decomp=spectral_decomp, init = init, x = x)
 
     def precompute(self, options):
         gpu_utils.gpu_mode = options['gpu_mode']
@@ -251,7 +275,7 @@ class Sigma_Node_base(Node):
         ls = self.get_ls()
         zeta = self.get_zeta()
 
-        if not self.model_groups:
+        if not self.model_groups or not hasattr(self, 'Kg') or self.Kg is None:
             Kg = np.ones([self.K, self.G, self.G])
             return {'l': ls, 'scale': 1 - zeta, 'sample_cov': self.sample_cov_transformed, 'Kg' : Kg}
 
@@ -468,6 +492,9 @@ class Sigma_Node_base(Node):
         K = var.dim[1]
         assert K == len(self.zeta) and K == self.K, \
             'problem in dropping factor'
+
+        if self.model_groups:
+                self.initKg(rank = self.rankx, spectral_decomp = self.kronecker, init = self.init_method_Kg)
 
         # optimise hyperparamters of GP
         for k in range(K):

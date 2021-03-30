@@ -21,7 +21,7 @@ class Kg_Node(Node):
     sigma: initial value of the diagonal term
     """
 
-    def __init__(self, dim, rank, sigma = 0.1, scale_to_cor = True, spectral_decomp = True):
+    def __init__(self, dim, rank, sigma = 0.1, scale_to_cor = True, spectral_decomp = True, init = "full", x = None):
         super().__init__(dim)
         self.G = dim[1]                                             # number of observations for covariate
         self.K = dim[0]                                             # number of latent processes
@@ -29,15 +29,20 @@ class Kg_Node(Node):
         self.sigma = np.array([sigma] * self.K)
         self.scale_to_cor = scale_to_cor
         # initialize components in node
-        self.compute4init(spectral_decomp = spectral_decomp)
+        self.compute4init(spectral_decomp = spectral_decomp, init = init, x = x)
 
 
-    def compute4init(self, spectral_decomp = True):
+    def compute4init(self, spectral_decomp = True, init = "full", x = None):
         """
         Function to initialize kernel matrix
         """
-        # initialize x by full connectedness of groups (matrix of 1's)
-        self.x = np.sqrt(np.ones([self.K, self.rank, self.G]) * 1/self.rank)
+        if init =="pca":
+            assert x is not None
+            self.x = np.stack(x)
+        else:
+            # initialize x by full connectedness of groups (matrix of 1's)
+            self.x = np.sqrt(np.ones([self.K, self.rank, self.G]) * 1/self.rank)
+
 
         # initialise kernel matrix
         self.Kmat = np.zeros([self.K, self.G, self.G])

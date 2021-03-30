@@ -791,7 +791,7 @@ class entry_point(object):
 
     def set_smooth_options(self, scale_cov = False, start_opt=20, n_grid=20, opt_freq=10, model_groups = True,
         warping = False, warping_freq = 20, warping_ref = 0, warping_open_begin = True, warping_open_end = True,
-        sparseGP = False, frac_inducing = None, mv_Znode = True):
+        sparseGP = False, frac_inducing = None, mv_Znode = True, init_method_Kg = "full"):
 
         """ 
         Method to activate and set options for a functional MOFA model (MEFISTO).
@@ -809,6 +809,7 @@ class entry_point(object):
             wether to allow open begin or open end for the alginement
         - sparseGP: Boolean, whether to use sparse Gaussian processes (only recommmended for very large data sets)
         - frac_inducing: Fraction of original samples to use as inducing points when using sparse GPs (between 0 and 1)
+        - initKg: initilization method for group kernel parameters - full: all groups connected; pca: based on first components
         """ 
 
         # Sanity checks
@@ -901,6 +902,7 @@ class entry_point(object):
 
         # Define whether to model a group covariance structure
         self.smooth_opts['model_groups'] = model_groups
+        self.smooth_opts['init_method_Kg'] = init_method_Kg
         if self.dimensionalities["G"] < 2:
             self.smooth_opts['model_groups'] = False
         # self.smooth_opts['use_gpytorch'] = False # experimental, this could be passed as a model_option but to keep options uncluttered set to False
