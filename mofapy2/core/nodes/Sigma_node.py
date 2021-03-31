@@ -129,8 +129,8 @@ class Sigma_Node_base(Node):
             index_cols = df.columns.values[["covariates_" in x for x in df.columns]]
             x = []
             for f in ["Factor_%s" % s for s in range(ZE.shape[1])]:
-                mat = df.pivot_table(index="group", columns = index_cols.tolist(), values = f)
-                cov = np.cov(mat)
+                mat = df.pivot_table(index="group", columns = index_cols.tolist(), values = f, aggfunc='mean')
+                cov = np.ma.cov(np.ma.array(mat, mask = np.isnan(mat))).data # TODO check handling ov missing values
                 ev , eig = np.linalg.eig(cov)
                 idx = np.argsort(ev)[::-1]
                 eig = eig[:,idx]
@@ -493,7 +493,7 @@ class Sigma_Node_base(Node):
         assert K == len(self.zeta) and K == self.K, \
             'problem in dropping factor'
 
-        if self.model_groups:
+        if self.model_groups and self.iter == self.start_opt:
                 self.initKg(rank = self.rankx, spectral_decomp = self.kronecker, init = self.init_method_Kg)
 
         # optimise hyperparamters of GP
@@ -590,9 +590,9 @@ class Sigma_Node_base(Node):
 class Sigma_Node(Sigma_Node_base):
 
     def __init__(self, dim, sample_cov, groups, start_opt=20, opt_freq = 10,
-                 n_grid = 10, rankx = None,  model_groups = False):
+                 n_grid = 10, rankx = None,  model_groups = False, init_method_Kg = "full"):
 
-        super().__init__(dim, sample_cov, groups, start_opt, opt_freq, n_grid, rankx, model_groups)
+        super().__init__(dim, sample_cov, groups, start_opt, opt_freq, n_grid, rankx, model_groups, init_method_Kg)
 
         # initialize Sigma terms (unstructured)
         self.Nu = self.N                                            # dimension of the inverse matrix (can differ for sparse subclasses)
@@ -616,9 +616,9 @@ class Sigma_Node_sparse(Sigma_Node_base):
     """
 
     def __init__(self, dim, sample_cov, groups, start_opt=20, opt_freq = 10,
-                 n_grid=10, rankx = None, model_groups = False, idx_inducing = None):
+                 n_grid=10, rankx = None, model_groups = False, idx_inducing = None, init_method_Kg = "full"):
 
-        super().__init__(dim, sample_cov, groups, start_opt, opt_freq, n_grid, rankx, model_groups)
+        super().__init__(dim, sample_cov, groups, start_opt, opt_freq, n_grid, rankx, model_groups, init_method_Kg)
         self.kronecker = False
 
         # sparse GPs
@@ -701,9 +701,9 @@ class Sigma_Node_warping(Sigma_Node_base):
     def __init__(self, dim, sample_cov, groups, start_opt=20, opt_freq = 10,
                  n_grid=10, rankx = None, model_groups = False,
                  warping_freq = 20, warping_ref = 0, warping_open_begin = True,
-                 warping_open_end = True):
+                 warping_open_end = True, init_method_Kg = "full"):
 
-        super().__init__(dim, sample_cov, groups, start_opt, opt_freq, n_grid, rankx, model_groups)
+        super().__init__(dim, sample_cov, groups, start_opt, opt_freq, n_grid, rankx, model_groups, init_method_Kg)
 
         self.kronecker = False
         self.new_alignment = False

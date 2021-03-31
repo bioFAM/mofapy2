@@ -39,6 +39,7 @@ class Kg_Node(Node):
         if init =="pca":
             assert x is not None
             self.x = np.stack(x)
+            self.simga =np.array([0] * self.K)
         else:
             # initialize x by full connectedness of groups (matrix of 1's)
             self.x = np.sqrt(np.ones([self.K, self.rank, self.G]) * 1/self.rank)

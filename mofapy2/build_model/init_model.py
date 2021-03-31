@@ -341,7 +341,8 @@ class initModel(object):
             start_opt=start_opt, 
             n_grid=n_grid, 
             opt_freq=opt_freq, 
-            model_groups = model_groups
+            model_groups = model_groups,
+            init_method_Kg = init_method_Kg
         )
         self.nodes["Sigma"] = self.Sigma
 
@@ -356,7 +357,8 @@ class initModel(object):
             n_grid=n_grid, 
             idx_inducing=idx_inducing, 
             opt_freq=opt_freq, 
-            model_groups = model_groups
+            model_groups = model_groups,
+            init_method_Kg = init_method_Kg
         )
         self.nodes["Sigma"] = self.Sigma
 
@@ -375,7 +377,8 @@ class initModel(object):
             warping_open_begin=warping_open_begin, 
             warping_open_end=warping_open_end,
             opt_freq=opt_freq, 
-            model_groups = model_groups
+            model_groups = model_groups,
+            init_method_Kg = init_method_Kg
         )
         self.nodes["Sigma"] = self.Sigma
 
