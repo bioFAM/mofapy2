@@ -266,7 +266,7 @@ class BayesNet(object):
                         print('- Time spent in ELBO computation: %.1f%%' % (100*t_elbo/(t_updates+t_elbo)) )
 
                     # Assess convergence
-                    if i>self.options["start_elbo"] and not self.options['forceiter']:
+                    if i>self.options["start_elbo"] and i>self.options["min_iter"] and not self.options['forceiter']:
                         convergence_token, converged = self.assess_convergence(delta_elbo, elbo.iloc[0]["total"], convergence_token)
                         if converged:
                             number_factors = number_factors[:i]

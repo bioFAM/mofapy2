@@ -652,8 +652,9 @@ class entry_point(object):
 
         self.train_opts = {}
 
-        # Maximum number of iterations
+        # Maximum and minimum number of iterations
         self.train_opts['maxiter'] = int(iter)
+        self.train_opts['min_iter'] = 0
 
         # Lower bound computation frequency
         if freqELBO is None or freqELBO==0: freqELBO=iter+1
@@ -859,6 +860,11 @@ class entry_point(object):
             print("## Warping set to True: aligning the covariates across groups")
             print("##")
 
+        # Set a minium number of training iterations based on start of optimization and warping
+        self.train_opts['min_iter'] =  self.smooth_opts['start_opt']
+        if self.smooth_opts['warping']:
+            self.train_opts['min_iter'] = max(self.train_opts['min_iter'], self.smooth_opts['warping_freq']) + 1
+
        # Sparse GPs
         if sparseGP is True:
             assert not self.smooth_opts['warping'], "The warping functionality cannot be used in conjunction with the sparseGP option."
@@ -911,7 +917,7 @@ class entry_point(object):
 
         # Define whether to use group and factor-wise ARD prior for Z
         if ((self.dimensionalities["G"]>1) & (ard_factors==False)): 
-            print("WARNING: 'ard_factors' in model_options should be set to True if using multiple groups\n")
+            print("WARNING: 'ard_factors' in model_options should be set to True if using multiple groups unless you are using MEFISTO\n")
         # if self.dimensionalities["G"]>1: ard_factors = True
         self.model_opts['ard_factors'] = ard_factors
 
