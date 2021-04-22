@@ -762,7 +762,7 @@ class entry_point(object):
     def set_stochastic_options(self, learning_rate=1., forgetting_rate=0., batch_size=1., start_stochastic=1):
 
         # Sanity checks
-        if self.smooth_opts['GP_factors']:
+        if hasattr(self, 'smooth_opts'):
             print("Stochastic inference is not possible when using covariates - train_opts['stochastic'] is set to False - consider using the option 'sparseGP' instead.")
             self.train_opts['stochastic'] = False
             return None
@@ -1038,7 +1038,7 @@ class entry_point(object):
         groups: Groups for which to predict, default is "all"
         """
 
-        assert self.smooth_opts['GP_factors'], "Using predict_factors requires the use of GP_factors," \
+        assert hasattr(self, 'smooth_opts'), "Using predict_factors requires the use of GP_factors," \
                                               " maybe you want to use impute instead?"
 
         if new_covariates is None:
