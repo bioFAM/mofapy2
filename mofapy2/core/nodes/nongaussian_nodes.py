@@ -190,7 +190,7 @@ class Poisson_PseudoY(PseudoY_Seeger):
 
     def ratefn(self, X):
         # Poisson rate function
-        return s.log(1+s.exp(X))
+        return s.log(1+s.exp(X)) + 0.0001
 
     def clip(self, threshold):
         # The local bound degrades with the presence of large values in the observed data, which should be clipped
