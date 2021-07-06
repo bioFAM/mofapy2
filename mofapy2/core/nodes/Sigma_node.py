@@ -73,24 +73,6 @@ class Sigma_Node_base(Node):
         self.model_groups = model_groups
         self.groupsidx = pd.factorize(self.group_labels)[0]         # for each sample gives the idx in groups
         self.groups = np.unique(self.group_labels)                  # distinct group labels
-        if self.model_groups:
-            self.G = len(self.groups)  # number of groups
-            if rankx is None:
-                rankx = 1
-                # if self.G < 50:
-                #     rankx = 1
-                # else:
-                #     rankx = 2
-            self.kronecker = np.all([np.all(self.sample_cov_transformed[self.groupsidx == 0] ==
-                                             self.sample_cov_transformed[self.groupsidx == g]) for g in
-                                             range(self.G)])
-            self.initKg(rank = rankx, spectral_decomp = self.kronecker)
-        else:
-            # all samples are modelled jointly in the covariate kernel
-            self.Kg = None
-            self.kronecker = True
-            self.G = 1
-
 
     def initKc(self, transformed_sample_cov, cov4grid=None, spectral_decomp=True):
         """
@@ -567,6 +549,21 @@ class Sigma_Node(Sigma_Node_base):
 
         super().__init__(dim, sample_cov, groups, start_opt, opt_freq, n_grid, rankx, model_groups)
 
+        # initialize group kernel
+        if self.model_groups:
+            self.G = len(self.groups)  # number of groups
+            if rankx is None:
+                rankx = 1
+            self.kronecker = np.all([np.all(self.sample_cov_transformed[self.groupsidx == 0] ==
+                                             self.sample_cov_transformed[self.groupsidx == g]) for g in
+                                             range(self.G)])
+            self.initKg(rank = rankx, spectral_decomp = self.kronecker)
+        else:
+            # all samples are modelled jointly in the covariate kernel
+            self.Kg = None
+            self.kronecker = True
+            self.G = 1
+
         # initialize Sigma terms (unstructured)
         self.Nu = self.N                                            # dimension of the inverse matrix (can differ for sparse subclasses)
         self.Sigma_inv = np.zeros([self.K, self.Nu, self.Nu])
@@ -578,6 +575,7 @@ class Sigma_Node(Sigma_Node_base):
 
         # initialize covariate kernel
         self.initKc(self.sample_cov_transformed, spectral_decomp=self.kronecker)
+
 
 
 class Sigma_Node_sparse(Sigma_Node_base):
@@ -592,12 +590,28 @@ class Sigma_Node_sparse(Sigma_Node_base):
                  n_grid=10, rankx = None, model_groups = False, idx_inducing = None):
 
         super().__init__(dim, sample_cov, groups, start_opt, opt_freq, n_grid, rankx, model_groups)
-        self.kronecker = False
 
         # sparse GPs
         self.idx_inducing = idx_inducing
         self.Nu = len(idx_inducing)
+        self.groupsidx_all = self.groupsidx
         self.groupsidx = self.groupsidx[self.idx_inducing]                  # subset to group labels for inducing points
+
+        # initialize group kernel
+        if self.model_groups:
+            self.G = len(self.groups)  # number of groups
+            if rankx is None:
+                rankx = 1
+            self.kronecker = np.all([np.all(self.sample_cov_transformed[self.idx_inducing][self.groupsidx == 0] ==
+                                             self.sample_cov_transformed[self.idx_inducing][self.groupsidx == g]) for g in
+                                             range(self.G)])
+            self.initKg(rank = rankx, spectral_decomp = self.kronecker)
+        else:
+            # all samples are modelled jointly in the covariate kernel
+            self.Kg = None
+            self.kronecker = True
+            self.G = 1
+
 
         # initialize Sigma terms (unstructured)
         self.Sigma_inv = np.zeros([self.K, self.Nu, self.Nu])
@@ -633,6 +647,7 @@ class Sigma_Node_sparse(Sigma_Node_base):
 
             else:
                     self.update_Sigma_complete_k(k)
+                    # TODO make use of Kronecker structures where possible in the following
                     self.Sigma_inv[k, :, :] = np.linalg.inv(self.Sigma[k, self.idx_inducing, :][:,self.idx_inducing])
                     self.Sigma_inv_logdet[k] = np.linalg.slogdet(self.Sigma_inv[k, :, :])[1]
 
@@ -646,7 +661,12 @@ class Sigma_Node_sparse(Sigma_Node_base):
                 self.Sigma[k, :, :] = np.eye(self.N)
         else:
             Kc_k = self.Kc.eval_at_newpoints_k(self.sample_cov_transformed, k)
-            self.Sigma[k, :, :] = (1 - self.zeta[k]) * Kc_k  + self.zeta[k] * np.eye(self.N)
+            if not self.model_groups:
+                self.Sigma[k, :, :] = (1 - self.zeta[k]) * Kc_k  + self.zeta[k] * np.eye(self.N)
+            else:
+                self.Sigma[k, :, :] = (1 - self.zeta[k]) *\
+                                      Kc_k * self.Kg.Kmat[k, self.groupsidx_all, :][:, self.groupsidx_all] + \
+                                      self.zeta[k] * np.eye(self.N)
 
     def updateParameters(self, ix, ro):
         """
@@ -677,9 +697,19 @@ class Sigma_Node_warping(Sigma_Node_base):
                  warping_open_end = True):
 
         super().__init__(dim, sample_cov, groups, start_opt, opt_freq, n_grid, rankx, model_groups)
-
         self.kronecker = False
         self.new_alignment = False
+
+        # initialize group kernel
+        if self.model_groups:
+            self.G = len(self.groups)  # number of groups
+            if rankx is None:
+                rankx = 1
+            self.initKg(rank = rankx, spectral_decomp = self.kronecker)
+        else:
+            # all samples are modelled jointly in the covariate kernel
+            self.Kg = None
+            self.G = 1
 
         # set warping options
         self.G4warping = len(self.groups) # number of groups to consider for warping (if no group kernel this differs from self.G)

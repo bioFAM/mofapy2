@@ -1045,7 +1045,7 @@ class entry_point(object):
             new_covariates = self.sample_cov
 
         # get group-covariate combinations included in the model
-        old_groups = self.model.nodes['Sigma'].groupsidx
+        old_groups = pd.factorize(self.model.nodes['Sigma'].group_labels)[0]
         old_covariates = self.model.nodes['Sigma'].sample_cov_transformed
         all_covariates = np.unique(np.vstack([new_covariates, old_covariates]), axis =0)
         N = all_covariates.shape[0]
@@ -1057,13 +1057,7 @@ class entry_point(object):
 
         Sigma_terms = self.model.nodes['Sigma'].getExpectations()
         Sigma = Sigma_terms['cov']
-        if not self.smooth_opts['sparseGP']:
-            Sigma_inv = Sigma_terms['inv']
-        else:
-            N = Z.shape[0]
-            Sigma_inv = np.zeros([K, N, N])
-            for k in range(K):
-                Sigma_inv[k,:,:] = np.linalg.inv(Sigma[k,:,:])
+        Sigma_inv = Sigma_terms['inv']
                 
         GP_param = self.model.nodes['Sigma'].getParameters()
         if groups == "all":
@@ -1090,22 +1084,43 @@ class entry_point(object):
         for k in range(K):
             Kc_new = self.model.nodes['Sigma'].Kc.eval_at_newpoints_k(all_covariates,k)
             K_new_k = GP_param['scale'][k] * np.kron(Kg[k,:,:], Kc_new)
-            Sigma_new_k = K_new_k + (1 - GP_param['scale'][k]) * np.eye(N * G)
-            Z_new_mean[:,k] = gpu_utils.dot(K_new_k[newidx, :][:, oldix], gpu_utils.dot(Sigma_inv[k,:,:], Z[:,k]))
+            Sigma_new_k = K_new_k + (1 - GP_param['scale'][k]) * np.eye(Kc_new.shape[0] * G)
+            if not self.smooth_opts['sparseGP']:
+                Z_new_mean[:,k] = gpu_utils.dot(K_new_k[newidx, :][:, oldix], gpu_utils.dot(Sigma_inv[k,:,:], Z[:,k]))
+            else:
+                U = self.model.nodes['U'].getExpectations()['E']
+                old_sub = oldix[self.model.nodes['Sigma'].idx_inducing]
+                Z_new_mean[:, k] = gpu_utils.dot(K_new_k[newidx, :][:, old_sub],
+                                                 gpu_utils.dot(Sigma_inv[k, :, :], U[:, k]))
             if uncertainty:
                 # marginal variances p(z, z*|c, c*, y) =  p(z*|z, y,c,c*) *p(z|y,c,c*)  = p(z*|z, c*) * p(z|y,c)
                 # Var[z*] = Var([E(z*|z)]) + Var(E(z*|z))
                 # if not self.model_opts['mv_Znode']:
                 #     Z2 = np.diag(self.model.nodes['Z'].getExpectations()['E2'][:,k] - self.model.nodes['Z'].getExpectations()['E'][:,k]**2)
-                # else:
-                Z2 = self.model.nodes['Z'].getExpectations()['cov'][k,:,:]
                 # TODO: avoid calculating full matrix, only require diagonal
-                Z_new_var[:, k] = np.diag(Sigma_new_k[newidx, :][:, newidx] - \
-                                          gpu_utils.dot(K_new_k[newidx, :][:, oldix],
-                                                        gpu_utils.dot(Sigma_inv[k, :, :],
-                                                                      K_new_k[oldix, :][:, newidx])) + \
-                                                            gpu_utils.dot(K_new_k[newidx, :][:, oldix], gpu_utils.dot(Sigma_inv[k, :, :],
-                                                                           gpu_utils.dot(Z2,gpu_utils.dot(Sigma_inv[k, :, :],K_new_k[oldix,:][:,newidx])))))
+                if not self.smooth_opts['sparseGP']:
+                    Z2 = self.model.nodes['Z'].getExpectations()['cov'][k,:,:] #A_k
+                    Z_new_var[:, k] = np.diag(Sigma_new_k[newidx, :][:, newidx] - \
+                                              gpu_utils.dot(K_new_k[newidx, :][:, oldix],
+                                                            gpu_utils.dot(Sigma_inv[k, :, :],
+                                                                          K_new_k[oldix, :][:, newidx])) + \
+                                              gpu_utils.dot(K_new_k[newidx, :][:, oldix],
+                                                            gpu_utils.dot(Sigma_inv[k, :, :],
+                                                                          gpu_utils.dot(Z2, gpu_utils.dot(
+                                                                              Sigma_inv[k, :, :],
+                                                                              K_new_k[oldix, :][:, newidx])))))
+                else:
+                    Z2 = self.model.nodes['U'].getExpectations()['cov'][k,:,:]
+                    Z_new_var[:, k] = np.diag(Sigma_new_k[newidx, :][:, newidx] - \
+                                              gpu_utils.dot(K_new_k[newidx, :][:, old_sub],
+                                                            gpu_utils.dot(Sigma_inv[k, :, :],
+                                                                          K_new_k[old_sub, :][:, newidx])) + \
+                                              gpu_utils.dot(K_new_k[newidx, :][:, old_sub],
+                                                            gpu_utils.dot(Sigma_inv[k, :, :],
+                                                                          gpu_utils.dot(Z2, gpu_utils.dot(
+                                                                              Sigma_inv[k, :, :],
+                                                                              K_new_k[old_sub, :][:, newidx])))))
+
 
         if uncertainty:
             assert np.all(Z_new_var >= 0), "Something went wrong in the prediction: variances of the predictive distribution are negative"
