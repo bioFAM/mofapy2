@@ -694,7 +694,7 @@ class Sigma_Node_warping(Sigma_Node_base):
     def __init__(self, dim, sample_cov, groups, start_opt=20, opt_freq = 10,
                  n_grid=10, rankx = None, model_groups = False,
                  warping_freq = 20, warping_ref = 0, warping_open_begin = True,
-                 warping_open_end = True):
+                 warping_open_end = True, warping_groups = None):
 
         super().__init__(dim, sample_cov, groups, start_opt, opt_freq, n_grid, rankx, model_groups)
         self.kronecker = False
@@ -712,13 +712,14 @@ class Sigma_Node_warping(Sigma_Node_base):
             self.G = 1
 
         # set warping options
-        self.G4warping = len(self.groups) # number of groups to consider for warping (if no group kernel this differs from self.G)
+        self.G4warping =  len(pd.factorize(warping_groups)[1]) # number of groups to consider for warping (if no group kernel this differs from self.G)
         assert warping_ref < self.G4warping,\
             "Reference group not correctly specified, exceeds the number of groups."
         self.reference_group = warping_ref
         self.warping_freq = warping_freq
         self.warping_open_begin = warping_open_begin
         self.warping_open_end = warping_open_end
+        self.warping_groups = pd.factorize(warping_groups)[0]
 
         assert self.start_opt % self.warping_freq == 0,\
             "start_opt should be a multiple of warping_freq"            # to ensure in the first opt. step alignment is performed
@@ -772,16 +773,16 @@ class Sigma_Node_warping(Sigma_Node_base):
         for g in range(self.G4warping):
             if g is not self.reference_group:
                 # reorder by covariate value to ensure monotonicity constrains are correctly placed
-                idx_ref_order = np.argsort(self.sample_cov[self.groupsidx == self.reference_group,0])
-                idx_query_order = np.argsort(self.sample_cov[self.groupsidx == g,0])
+                idx_ref_order = np.argsort(self.sample_cov[self.warping_groups == self.reference_group,0])
+                idx_query_order = np.argsort(self.sample_cov[self.warping_groups == g,0])
                 # allow for partial matching (no corresponding end and beginning)
                 step_pattern = "asymmetric" if self.warping_open_begin or self.warping_open_end else "symmetric2"
-                alignment = dtw(Z[self.groupsidx == g, :][idx_query_order,:], Z[self.groupsidx == self.reference_group, :][idx_ref_order,:],
+                alignment = dtw(Z[self.warping_groups == g, :][idx_query_order,:], Z[self.warping_groups == self.reference_group, :][idx_ref_order,:],
                                 open_begin = self.warping_open_begin, open_end = self.warping_open_end, step_pattern=step_pattern)
                 query_idx = alignment.index1 # dtw-python
                 ref_idx = alignment.index2
-                ref_val = self.sample_cov[self.groupsidx == self.reference_group, 0][idx_ref_order][ref_idx]
-                idx = np.where(self.groupsidx == g)[0][idx_query_order][query_idx]
+                ref_val = self.sample_cov[self.warping_groups == self.reference_group, 0][idx_ref_order][ref_idx]
+                idx = np.where(self.warping_groups == g)[0][idx_query_order][query_idx]
                 self.sample_cov_transformed[idx, 0] = ref_val
 
         # covariate kernel needs to be re-initialized after each warping
