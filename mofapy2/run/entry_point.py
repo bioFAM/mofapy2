@@ -873,6 +873,8 @@ class entry_point(object):
        # Sparse GPs
         if sparseGP is True:
             assert not self.smooth_opts['warping'], "The warping functionality cannot be used in conjunction with the sparseGP option."
+            assert np.all([l == 'gaussian' for l in self.model_opts['likelihoods']]), "Non-gaussian likelihoods cannot be used in conjunction with the sparseGP option."
+
             self.smooth_opts['sparseGP'] = True
             if self.dimensionalities["N"] < 1000:
                 print("Warning: sparseGP should only be used when having a large sample size (>1e3)\n")
