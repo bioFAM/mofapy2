@@ -777,14 +777,12 @@ class Sigma_Node_warping(Sigma_Node_base):
                 tref = np.sort(np.unique(self.sample_cov[self.warping_groups == self.reference_group,0]))
                 Zref= [np.mean(Z[self.warping_groups == self.reference_group, :][self.sample_cov[self.warping_groups == self.reference_group,0] == t,:], axis =0) for t in tref]
                 step_pattern = "asymmetric" if self.warping_open_begin or self.warping_open_end else "symmetric2"
-                alignment = dtw(Zref,
-                                Zg,
+                alignment = dtw(np.array(Zg),
+                                np.array(Zref),
                                 open_begin=self.warping_open_begin, open_end=self.warping_open_end,
                                 step_pattern=step_pattern)
-                query_idx = alignment.index1 # dtw-python
                 ref_idx = alignment.index2
-                ref_val = tref[ref_idx]
-                new_val = tref[query_idx]
+                new_val = tref[ref_idx]
                 old_val = self.sample_cov[self.warping_groups == g, 0]
                 new_sample_cov = [new_val[tg == told].item() for told in old_val]
                 self.sample_cov_transformed[self.warping_groups == g, 0] = new_sample_cov
