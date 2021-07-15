@@ -776,7 +776,8 @@ class Sigma_Node_warping(Sigma_Node_base):
                 Zg = [np.mean(Z[self.warping_groups == g, :][self.sample_cov[self.warping_groups == g,0] == t,:], axis =0) for t in tg]
                 tref = np.sort(np.unique(self.sample_cov[self.warping_groups == self.reference_group,0]))
                 Zref= [np.mean(Z[self.warping_groups == self.reference_group, :][self.sample_cov[self.warping_groups == self.reference_group,0] == t,:], axis =0) for t in tref]
-                step_pattern = "asymmetric" if self.warping_open_begin or self.warping_open_end else "symmetric2"
+                step_pattern = "asymmetric" # matches each element in the query to exactly one in the reference
+                # step_pattern = "asymmetric" if self.warping_open_begin or self.warping_open_end else "symmetric2"
                 alignment = dtw(np.array(Zg),
                                 np.array(Zref),
                                 open_begin=self.warping_open_begin, open_end=self.warping_open_end,
