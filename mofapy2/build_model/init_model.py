@@ -358,7 +358,7 @@ class initModel(object):
         self.nodes["Sigma"] = self.Sigma
 
     def initSigma_warping(self, sample_cov, start_opt = 20, n_grid = 10, 
-        warping_freq = 20, warping_ref = 0, warping_open_begin = True, warping_open_end =True,
+        warping_freq = 20, warping_ref = 0, warping_open_begin = True, warping_open_end =True, warping_groups = None,
         opt_freq = 10, model_groups = False, use_gpytorch = False):
 
         self.Sigma = Sigma_Node_warping(
@@ -371,6 +371,7 @@ class initModel(object):
             warping_ref=warping_ref,
             warping_open_begin=warping_open_begin, 
             warping_open_end=warping_open_end,
+            warping_groups=warping_groups,
             opt_freq=opt_freq, 
             model_groups = model_groups
         )

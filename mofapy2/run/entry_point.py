@@ -791,7 +791,7 @@ class entry_point(object):
 
     def set_smooth_options(self, scale_cov = False, start_opt=20, n_grid=20, opt_freq=10, model_groups = True,
         warping = False, warping_freq = 20, warping_ref = 0, warping_open_begin = True, warping_open_end = True,
-        sparseGP = False, frac_inducing = None):
+        sparseGP = False, frac_inducing = None, warping_groups = None):
 
         """ 
         Method to activate and set options for a functional MOFA model (MEFISTO).
@@ -853,6 +853,11 @@ class entry_point(object):
         self.smooth_opts['warping_ref'] = int(warping_ref)
         self.smooth_opts['warping_open_begin'] = bool(warping_open_begin)
         self.smooth_opts['warping_open_end'] = bool(warping_open_end)
+        if warping_groups is None:
+            self.smooth_opts['warping_groups'] = self.data_opts['samples_groups']
+        else:
+            self.smooth_opts['warping_groups'] = np.array(warping_groups)
+
         if self.smooth_opts['warping'] is True:
             assert self.dimensionalities["G"] > 1, "The warping functionality is only relevant when having multi-group data"
             assert self.dimensionalities["C"] == 1, "Warping only implemented for one dimensional covariates"
@@ -868,6 +873,8 @@ class entry_point(object):
        # Sparse GPs
         if sparseGP is True:
             assert not self.smooth_opts['warping'], "The warping functionality cannot be used in conjunction with the sparseGP option."
+            assert np.all([l == 'gaussian' for l in self.model_opts['likelihoods']]), "Non-gaussian likelihoods cannot be used in conjunction with the sparseGP option."
+
             self.smooth_opts['sparseGP'] = True
             if self.dimensionalities["N"] < 1000:
                 print("Warning: sparseGP should only be used when having a large sample size (>1e3)\n")

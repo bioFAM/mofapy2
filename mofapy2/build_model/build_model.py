@@ -274,6 +274,7 @@ class build_mofa_smooth(buildBiofam):
                     warping_ref = self.smooth_opts['warping_ref'],
                     warping_open_begin = self.smooth_opts['warping_open_begin'],
                     warping_open_end = self.smooth_opts['warping_open_end'],
+                    warping_groups = self.smooth_opts['warping_groups'],
                     opt_freq = self.smooth_opts['opt_freq'],
                     model_groups = self.smooth_opts['model_groups']#,
                     # use_gpytorch  = self.model_opts['use_gpytorch']
