@@ -1051,6 +1051,8 @@ class entry_point(object):
         if new_covariates is None:
             new_covariates = self.sample_cov
 
+        new_covariates = np.unique(new_covariates, axis =0)
+
         # get group-covariate combinations included in the model
         old_groups = pd.factorize(self.model.nodes['Sigma'].group_labels)[0]
         old_covariates = self.model.nodes['Sigma'].sample_cov_transformed
