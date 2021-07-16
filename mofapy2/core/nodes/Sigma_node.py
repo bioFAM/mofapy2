@@ -753,9 +753,13 @@ class Sigma_Node_warping(Sigma_Node_base):
             self.optimise(var)
 
             # after a new alignment check that a sufficient smoothness and sharedness is present for a sensible alignment
-            if self.new_alignment and (all(1-self.get_zeta() < 0.3) or all(self.get_sharedness()< 0.3)):
-                print("WARNING: Factors show little shared smooth variation between groups - alignment might not work as intended.")
-                #self.sample_cov_transformed = copy.copy(self.sample_cov)
+            if self.new_alignment:
+                if self.model_groups:
+                    if (all(1-self.get_zeta() < 0.1) or all(self.get_sharedness()< 0.1)):
+                        print("WARNING: Factors show little shared smooth variation between groups - alignment might not work as intended.")
+                else:
+                    if all(1 - self.get_zeta() < 0.1):
+                        print("WARNING: Factors show little smooth variation - alignment might not work as intended.")
                 self.new_alignment = False
 
 
