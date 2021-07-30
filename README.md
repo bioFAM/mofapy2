@@ -1,4 +1,4 @@
-# Multi-Omics Factor Analysis v2 (MOFA+)
+# Multi-Omics Factor Analysis
 
 ![PyPi version](https://img.shields.io/pypi/v/mofapy2)
 
