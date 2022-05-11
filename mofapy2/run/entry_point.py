@@ -41,29 +41,6 @@ def keyboardinterrupt_saver(func):
             sys.exit()
     return saver
 
-
-def keyboardinterrupt_saver(func):
-    @wraps(func)
-    def saver(self, *args, **kwargs):
-        try:
-            func(self, *args, **kwargs)
-        # Internal methods will raise TypeError when interrupted
-        except (KeyboardInterrupt, TypeError):
-            if self.train_opts["save_interrupted"]:
-                print("Attempting to save the model at the current iteration...")
-                if self.train_opts["outfile"] is not None and self.train_opts != "":
-                    tmp_file = self.train_opts["outfile"]
-                    tmp_file = tmp_file.rstrip(".hdf5") + "_interrupted.hdf5"
-                else:
-                    tmp_file = os.path.join('/tmp', "mofa_{}_interrupted.hdf5".format(strftime('%Y%m%d-%H%M%S')))
-                self.save(outfile=tmp_file)
-                print("Saved partially trained model in {}. Exiting now.".format(tmp_file))
-            else:
-                print("Exiting now without saving the partially trained model. To save a partially trained model, set save_interrupted in the training options to true.")
-            sys.stdout.flush()
-            sys.exit()
-    return saver
-
 class entry_point(object):
     def __init__(self):
         self.print_banner()
