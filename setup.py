@@ -11,7 +11,7 @@ exec(open(os.path.join(os.path.dirname(__file__), 'mofapy2', 'version.py')).read
 # long_description = (this_directory / "README.md").read_text()
 
 def setup_package():
-  innp.all_requires = ['pandas', 'scipy', 'numpy', 'scikit-learn', 'argparse', 'h5py']
+  install_requires = ['pandas', 'scipy', 'numpy', 'scikit-learn', 'argparse', 'h5py']
   metadata = dict(
       name = 'mofapy2',
       version = __version__,
@@ -23,7 +23,7 @@ def setup_package():
       author_email = 'ricard.argelaguet@gmail.com',
       license = 'LGPL-3.0',
       packages = find_packages(),
-      innp.all_requires = innp.all_requires
+      install_requires = install_requires
     )
 
   setup(**metadata)
