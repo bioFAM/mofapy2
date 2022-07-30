@@ -88,7 +88,7 @@ class BayesNet(object):
         only_first_moments: bool
             get only first moments? (Default is False)
         nodes: list
-            name of the nodes (Default is all nodes)
+            name of the nodes (Default inp.all nodes)
         """
 
         if len(nodes) == 0: nodes = self.nodes.keys()
@@ -129,13 +129,13 @@ class BayesNet(object):
             for g in range(self.dim['G']):
                 gidx = unique_groups[g]
                 gg = groups==gidx
-                SS = s.square(Y[m][gg,:]).sum()
+                SS = np.square(Y[m][gg,:]).sum()
 
                 # Total variance explained (using all factors)
                 if total:
-                    Ypred = s.dot(Z[gg,:], W[m].T)
+                    Ypred = np.dot(Z[gg,:], W[m].T)
                     Ypred[mask[gg,:]] = 0.
-                    Res = s.sum((Y[m][gg, :] - Ypred) ** 2.)
+                    Res = np.sum((Y[m][gg, :] - Ypred) ** 2.)
                     r2[g][m] = 1. - Res / SS
 
                 # Variance explained per factor
@@ -143,7 +143,7 @@ class BayesNet(object):
                     for k in range(self.dim['K']):
                         Ypred = s.outer(Z[gg,k], W[m][:,k])
                         Ypred[mask[gg,:]] = 0.
-                        Res = s.sum((Y[m][gg,:] - Ypred)**2.)
+                        Res = np.sum((Y[m][gg,:] - Ypred)**2.)
                         r2[g][m,k] = 1. - Res/SS
         return r2
 
@@ -166,7 +166,7 @@ class BayesNet(object):
                 drop_dic["min_r2"] = [ np.random.choice(drop_dic["min_r2"]) ]
 
         # Drop the factors
-        drop = s.unique(s.concatenate(list(drop_dic.values())))
+        drop = s.unique(np.concatenate(list(drop_dic.values())))
         if len(drop) > 0:
             for node in self.nodes.keys():
                 self.nodes[node].removeFactors(drop)
@@ -319,17 +319,17 @@ class BayesNet(object):
 
         # Sparsity levels of the weights
         W = self.nodes["W"].getExpectation()
-        foo = [s.mean(s.absolute(W[m])<1e-3) for m in range(self.dim["M"])]
+        foo = [np.mean(np.absolute(W[m])<1e-3) for m in range(self.dim["M"])]
         print("- Fraction of zero weights:  " + "   ".join([ "View %s: %.0f%%" % (m,100*foo[m]) for m in range(self.dim["M"])]))
 
         # Correlation between factors
         Z = self.nodes["Z"].getExpectation()
         Z += np.random.normal(np.zeros(Z.shape),1e-10)
-        r = s.absolute(corr(Z.T,Z.T)); s.fill_diagonal(r,0)
-        print("- Maximum correlation between factors: %.2f" % (s.nanmax(r)))
+        r = np.absolute(corr(Z.T,Z.T)); np.fill_diagonal(r,0)
+        print("- Maximum correlation between factors: %.2f" % (np.nanmax(r)))
 
         # Factor norm
-        bar = s.mean(s.square(Z),axis=0)
+        bar = np.mean(np.square(Z),axis=0)
         print("- Factor norms:  " + " ".join([ "%.2f" % bar[k] for k in range(Z.shape[1])]))
 
         # Tau

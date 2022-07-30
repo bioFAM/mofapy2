@@ -40,11 +40,11 @@ class Y_Node(Constant_Variational_Node):
         self.TauTrick = True
 
         # Constant ELBO terms
-        self.likconst = -0.5 * s.sum(self.N) * s.log(2.*s.pi)
+        self.likconst = -0.5 * np.sum(self.N) * np.log(2.*np.pi)
 
     def mask(self):
         """ Method to mask missing observations """
-        mask = s.isnan(self.value)
+        mask = np.isnan(self.value)
         self.value[mask] = 0.
         return mask
 
@@ -83,7 +83,7 @@ class Y_Node(Constant_Variational_Node):
             for g in range(len(np.unique(groups))):
                 idx = groups==g
                 foo = (~mask[idx,:]).sum(axis=0)
-                elbo += 0.5*(Tau["lnE"][g,:]*foo).sum() - s.dot(Tau["E"][g,:],(tauQ_param["b"][g,:] - tauP_param["b"][g,:]))
+                elbo += 0.5*(Tau["lnE"][g,:]*foo).sum() - np.dot(Tau["E"][g,:],(tauQ_param["b"][g,:] - tauP_param["b"][g,:]))
 
         else:
             Y = self.getExpectation()
@@ -92,9 +92,9 @@ class Y_Node(Constant_Variational_Node):
             W, WW = Wtmp["E"].T, Wtmp["E2"].T
             Z, ZZ = Ztmp["E"], Ztmp["E2"]
 
-            tmp = s.square(Y) \
+            tmp = np.square(Y) \
                 + ZZ.dot(WW) \
-                - s.dot(s.square(Z),s.square(W)) + s.square(Z.dot(W)) \
+                - np.dot(np.square(Z),np.square(W)) + np.square(Z.dot(W)) \
                 - 2*Z.dot(W)*Y 
             tmp *= 0.5
             tmp[mask] = 0.

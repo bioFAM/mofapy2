@@ -126,7 +126,7 @@ class PseudoY_Seeger(PseudoY):
     def updateParameters(self, ix=None, ro=None):
         Z = self.markov_blanket["Z"].getExpectation()
         W = self.markov_blanket["W"].getExpectation()
-        # self.params["zeta"] = s.dot(Z,W.T)
+        # self.params["zeta"] = np.dot(Z,W.T)
         self.params["zeta"] = gpu_utils.dot( gpu_utils.array(Z),gpu_utils.array(W).T )
 
 class Tau_Seeger(Constant_Node):
@@ -181,8 +181,8 @@ class Poisson_PseudoY(PseudoY_Seeger):
         PseudoY_Seeger.__init__(self, dim=dim, obs=obs, groups=groups, params=params, E=E)
 
         # Initialise the observed data
-        assert s.all(s.mod(self.obs, 1) == 0), "Data must not contain float numbers, only integers"
-        assert s.all(self.obs >= 0), "Data must not contain negative numbers"
+        assert np.all(s.mod(self.obs, 1) == 0), "Data must not contain float numbers, only integers"
+        assert np.all(self.obs >= 0), "Data must not contain negative numbers"
 
     def precompute(self, options):
         self.updateParameters()
@@ -190,7 +190,7 @@ class Poisson_PseudoY(PseudoY_Seeger):
 
     def ratefn(self, X):
         # Poisson rate function
-        return s.log(1+s.exp(X)) + 0.0001
+        return np.log(1+np.exp(X)) + 0.0001
 
     def clip(self, threshold):
         # The local bound degrades with the presence of large values in the observed data, which should be clipped
@@ -219,12 +219,12 @@ class Poisson_PseudoY(PseudoY_Seeger):
 
         # Precompute terms
         ZW = Z.dot(W.T)
-        ZZWW = s.square(ZW) - s.dot(s.square(Z),s.square(W).T) + ZZ.dot(WW.T)
+        ZZWW = np.square(ZW) - np.dot(np.square(Z),np.square(W).T) + ZZ.dot(WW.T)
 
         # term1 = 0.5*tau*(ZW - zeta)**2
-        term1 = 0.5*tau*(ZZWW - 2*ZW*zeta + s.square(zeta))
+        term1 = 0.5*tau*(ZZWW - 2*ZW*zeta + np.square(zeta))
         term2 = (ZW - zeta)*(sigmoid(zeta)*(1.-self.obs/self.ratefn(zeta)))
-        term3 = self.ratefn(zeta) - self.obs*s.log(self.ratefn(zeta))
+        term3 = self.ratefn(zeta) - self.obs*np.log(self.ratefn(zeta))
 
         elbo = -(term1 + term2 + term3)
         elbo[mask] = 0.
@@ -256,7 +256,7 @@ class Bernoulli_PseudoY(PseudoY_Seeger):
         PseudoY_Seeger.__init__(self, dim=dim, obs=obs, groups=groups, params=params, E=E)
 
         # Initialise the observed data
-        assert s.all( (self.obs==0) | (self.obs==1) ), "Data must be binary"
+        assert np.all( (self.obs==0) | (self.obs==1) ), "Data must be binary"
 
     def updateExpectations(self):
         # Update the pseudodata
@@ -272,10 +272,9 @@ class Bernoulli_PseudoY(PseudoY_Seeger):
         W = self.markov_blanket["W"].getExpectation()
         mask = self.getMask()
 
-        # tmp = s.dot(Z,W.T)
         tmp = gpu_utils.asnumpy( gpu_utils.dot( gpu_utils.array(Z),gpu_utils.array(W).T ) )
 
-        lb = self.obs*tmp - s.log(1.+s.exp(tmp))
+        lb = self.obs*tmp - np.log(1.+np.exp(tmp))
         lb[mask] = 0.
 
         return lb.sum()
@@ -318,7 +317,7 @@ class Tau_Jaakkola(Node):
         return self.getValue()
 
     def getExpectations(self, expand=True):
-        return { 'E':self.getValue(), 'lnE':s.log(self.getValue()) }
+        return { 'E':self.getValue(), 'lnE':np.log(self.getValue()) }
 
     def removeFactors(self, idx, axis=None):
         pass
@@ -344,7 +343,7 @@ class Bernoulli_PseudoY_Jaakkola(PseudoY):
         PseudoY.__init__(self, dim=dim, obs=obs, groups=groups, params=params, E=E)
 
         # Initialise the observed data
-        assert s.all( (self.obs==0) | (self.obs==1) ), "Data must be binary"
+        assert np.all( (self.obs==0) | (self.obs==1) ), "Data must be binary"
 
     def precompute(self, options):
         self.updateParameters(ix=None, ro=None)
@@ -360,7 +359,7 @@ class Bernoulli_PseudoY_Jaakkola(PseudoY):
     def updateParameters(self, ix=None, ro=None):
         Z = self.markov_blanket["Z"].getExpectations()
         W = self.markov_blanket["W"].getExpectations()
-        self.params["zeta"] = s.sqrt(s.square(Z["E"].dot(W["E"].T)) - s.dot(s.square(Z["E"]), s.square(W["E"].T)) + s.dot(Z["E2"],W["E2"].T))
+        self.params["zeta"] = np.sqrt(np.square(Z["E"].dot(W["E"].T)) - np.dot(np.square(Z["E"]), np.square(W["E"].T)) + np.dot(Z["E2"],W["E2"].T))
 
     def calculateELBO(self):
         # Compute Evidence Lower Bound using the lower bound to the likelihood
@@ -378,14 +377,14 @@ class Bernoulli_PseudoY_Jaakkola(PseudoY):
 
         # Calculate E[(ZW_nd)^2]
         # this is equal to E[\sum_{k != k} z_k w_k z_k' w_k'] + E[\sum_{k} z_k^2 w_k^2]
-        tmp1 = s.square(ZW) - s.dot(s.square(Z),s.square(SW).T) # this is for terms in k != k'
+        tmp1 = np.square(ZW) - np.dot(np.square(Z),np.square(SW).T) # this is for terms in k != k'
         tmp2 = ZZ.dot(SWW.T) # this is for terms in k = k'
         EZZWW = tmp1 + tmp2
 
         # calculate elbo terms
         term1 = 0.5 * ((2.*self.obs - 1.)*ZW - zeta)
-        term2 = - s.log(1 + s.exp(-zeta))
-        term3 = - 1/(4 * zeta) *  s.tanh(zeta/2.) * (EZZWW - zeta**2)
+        term2 = - np.log(1 + np.exp(-zeta))
+        term3 = - 1/(4 * zeta) *  np.tanh(zeta/2.) * (EZZWW - zeta**2)
 
         lb = term1 + term2 + term3
         lb[mask] = 0.

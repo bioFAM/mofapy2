@@ -31,9 +31,9 @@ class ThetaW_Node(Beta_Unobserved_Variational_Node):
         QExp = self.Q.getExpectations()
         if expand:
             D = self.markov_blanket['W'].dim[0]
-            expanded_E = s.repeat(QExp['E'][None, :], D, axis=0)
-            expanded_lnE = s.repeat(QExp['lnE'][None, :], D, axis=0)
-            expanded_lnEInv = s.repeat(QExp['lnEInv'][None, :], D, axis=0)
+            expanded_E = np.repeat(QExp['E'][None, :], D, axis=0)
+            expanded_lnE = np.repeat(QExp['lnE'][None, :], D, axis=0)
+            expanded_lnEInv = np.repeat(QExp['lnEInv'][None, :], D, axis=0)
             return {'E': expanded_E, 'lnE': expanded_lnE, 'lnEInv': expanded_lnEInv}
         else:
             return QExp

@@ -110,12 +110,12 @@ class Constant_Node(Node):
 
     def getExpectations(self):
         """ Method to return the expectations of the node, which just points to the values """
-        return { 'E':self.getValue(), 'lnE':s.log(self.getValue()), 'E2':self.getValue()**2 }
+        return { 'E':self.getValue(), 'lnE':np.log(self.getValue()), 'E2':self.getValue()**2 }
 
     def removeFactors(self, idx, axis=None):
         if hasattr(self,"factors_axis"): axis = self.factors_axis
         if axis is not None:
-            self.value = s.delete(self.value, idx, axis)
+            self.value = np.delete(self.value, idx, axis)
             self.updateDim(axis=axis, new_dim=self.dim[axis]-len(idx))
 
     def sample(self, distrib='P'):

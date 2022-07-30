@@ -29,7 +29,7 @@ class TauD_Node(Gamma_Unobserved_Variational_Node):
         gpu_utils.gpu_mode = options['gpu_mode']
 
         # Constant ELBO terms
-        self.lbconst = s.sum(self.P.params['a']*s.log(self.P.params['b']) - special.gammaln(self.P.params['a']))
+        self.lbconst = np.sum(self.P.params['a']*np.log(self.P.params['b']) - special.gammaln(self.P.params['a']))
 
         # compute number of samples per group
         self.n_per_group = np.zeros(self.n_groups)
@@ -146,7 +146,7 @@ class TauD_Node(Gamma_Unobserved_Variational_Node):
         QE, QlnE = self.Q.expectations['E'], self.Q.expectations['lnE']
 
         # Do the calculations
-        lb_p = self.lbconst + s.sum((Pa-1.)*QlnE) - s.sum(Pb*QE)
-        lb_q = s.sum(Qa*s.log(Qb)) + s.sum((Qa-1.)*QlnE) - s.sum(Qb*QE) - s.sum(special.gammaln(Qa))
+        lb_p = self.lbconst + np.sum((Pa-1.)*QlnE) - np.sum(Pb*QE)
+        lb_q = np.sum(Qa*np.log(Qb)) + np.sum((Qa-1.)*QlnE) - np.sum(Qb*QE) - np.sum(special.gammaln(Qa))
 
         return lb_p - lb_q

@@ -73,7 +73,7 @@ class ZgU_node(UnivariateGaussian_Unobserved_Variational_Node):
             Q['var'] = par_up['Qvar']
         else:
             self.mini_batch['E'] = par_up['Qmean']
-            self.mini_batch['E2'] = s.square(par_up['Qmean']) + par_up['Qvar']
+            self.mini_batch['E2'] = np.square(par_up['Qmean']) + par_up['Qvar']
 
             Q['mean'][ix,:] = par_up['Qmean']
             Q['var'][ix,:] = par_up['Qvar']
@@ -116,9 +116,9 @@ class ZgU_node(UnivariateGaussian_Unobserved_Variational_Node):
             unstructured = (Sigma['cov'][k] == np.eye(N)).all() # TODO: Are there better ways to choose between sparse and non-sparse inference depending on factor smoothness?
             if unstructured: # updates according to q(z) without sparse inference
                     bar = gpu_utils.array(np.zeros((N,)))
-                    tmp_cp1 = gpu_utils.array(Qmean[:, s.arange(K) != k])
+                    tmp_cp1 = gpu_utils.array(Qmean[:, np.arange(K) != k])
                     for m in range(M):
-                        tmp_cp2 = gpu_utils.array(W[m]["E"][:, s.arange(K) != k].T)
+                        tmp_cp2 = gpu_utils.array(W[m]["E"][:, np.arange(K) != k].T)
 
                         bar_tmp1 = gpu_utils.array(W[m]["E"][:, k])
                         bar_tmp2 = gpu_utils.array(tau[m]) * (-gpu_utils.dot(tmp_cp1, tmp_cp2))
@@ -165,7 +165,7 @@ class ZgU_node(UnivariateGaussian_Unobserved_Variational_Node):
             tmp2 = 0
 
             lb_p = tmp1 + tmp2
-            lb_q = -(s.log(Qvar[:,k])).sum() + self.dim[0] / 2.
+            lb_q = -(np.log(Qvar[:,k])).sum() + self.dim[0] / 2.
 
             return lb_p - lb_q - self.markov_blanket['U'].calculateELBO_k(k)
         else:

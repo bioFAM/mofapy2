@@ -119,7 +119,7 @@
 #         Returns a new GP model that incorporates the specified inputs and targets as new training data.
 #
 #         Using this method is more efficient than updating with `set_train_data` when the number of inputs is relatively
-#         small, because any computed test-time caches will be updated in linear time rather than computed from scratch.
+#         np.all, because any computed test-time caches will be updated in linear time rather than computed from scratch.
 #
 #         .. note::
 #             If `targets` is a batch (e.g. `b x m`), then the GP returned from this method will be a batch mode GP.
@@ -396,7 +396,7 @@
 #             covar_i = covar_i.repeat(*x1.shape[:-2], 1, 1)
 #         covar_x = lazify(self.data_covar_module.forward(x1, x2, **params))
 #         res = KroneckerProductLazyTensor(covar_x, covar_i)
-#         return res.diag() if diag else res
+#         return renp.diag() if diag else res
 #
 #     def num_outputs_per_input(self, x1, x2):
 #         """

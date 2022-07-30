@@ -20,8 +20,8 @@ class AlphaW_Node(Gamma_Unobserved_Variational_Node):
         QExp = self.Q.getExpectations()
         if expand:
             D = self.markov_blanket['W'].dim[0]
-            expanded_E = s.repeat(QExp['E'][None, :], D, axis=0)
-            expanded_lnE = s.repeat(QExp['lnE'][None, :], D, axis=0)
+            expanded_E = np.repeat(QExp['E'][None, :], D, axis=0)
+            expanded_lnE = np.repeat(QExp['lnE'][None, :], D, axis=0)
             return {'E': expanded_E, 'lnE': expanded_lnE}
         else:
             return QExp
@@ -73,8 +73,8 @@ class AlphaW_Node(Gamma_Unobserved_Variational_Node):
         QE, QlnE = self.Q.getExpectations()['E'], self.Q.getExpectations()['lnE']
 
         # Do the calculations
-        lb_p = (Pa*s.log(Pb)).sum() - special.gammaln(Pa).sum() + ((Pa-1.)*QlnE).sum() - (Pb*QE).sum()
-        lb_q = (Qa*s.log(Qb)).sum() - special.gammaln(Qa).sum() + ((Qa-1.)*QlnE).sum() - (Qb*QE).sum()
+        lb_p = (Pa*np.log(Pb)).sum() - special.gammaln(Pa).sum() + ((Pa-1.)*QlnE).sum() - (Pb*QE).sum()
+        lb_q = (Qa*np.log(Qb)).sum() - special.gammaln(Qa).sum() + ((Qa-1.)*QlnE).sum() - (Qb*QE).sum()
 
         return lb_p - lb_q
 
@@ -173,7 +173,7 @@ class AlphaZ_Node(Gamma_Unobserved_Variational_Node):
         QE, QlnE = self.Q.getExpectations()['E'], self.Q.getExpectations()['lnE']
 
         # Do the calculations
-        lb_p = (Pa*s.log(Pb)).sum() - special.gammaln(Pa).sum() + ((Pa-1.)*QlnE).sum() - (Pb*QE).sum()
-        lb_q = (Qa*s.log(Qb)).sum() - special.gammaln(Qa).sum() + ((Qa-1.)*QlnE).sum() - (Qb*QE).sum()
+        lb_p = (Pa*np.log(Pb)).sum() - special.gammaln(Pa).sum() + ((Pa-1.)*QlnE).sum() - (Pb*QE).sum()
+        lb_q = (Qa*np.log(Qb)).sum() - special.gammaln(Qa).sum() + ((Qa-1.)*QlnE).sum() - (Qb*QE).sum()
 
         return lb_p - lb_q

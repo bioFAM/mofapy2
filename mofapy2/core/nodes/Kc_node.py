@@ -103,7 +103,7 @@ class Kc_Node(Node):
         return self.gridix[k]
 
     def removeFactors(self, idx, axis=1):
-        self.gridix = s.delete(self.gridix, axis=0, obj=idx)
+        self.gridix = np.delete(self.gridix, axis=0, obj=idx)
         self.updateDim(0, self.dim[0] - len(idx))
         self.K = self.K - 1
 

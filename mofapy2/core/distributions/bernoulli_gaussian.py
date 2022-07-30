@@ -67,8 +67,8 @@ class BernoulliGaussian(Distribution):
         EN = self.N_B1.getExpectation()
         E = EB * EN
         # TODO double check the order here 
-        E2 = EB * (s.square(EN) + self.params["var_B1"])
-        ENN = EB*(s.square(EN)+self.params["var_B1"]) + (1-EB)*self.params["var_B0"]
+        E2 = EB * (np.square(EN) + self.params["var_B1"])
+        ENN = EB*(np.square(EN)+self.params["var_B1"]) + (1-EB)*self.params["var_B0"]
 
         # Compute the expectation of X*X.T (where X=BN)
         # Work but not useful now !
@@ -77,7 +77,7 @@ class BernoulliGaussian(Distribution):
         #for n in range(self.dim[0]):
         #    EXXT[n, :, :] = np.dot(E[n, :].T, E[n, :])
         #    var_n = E2[n,:] - np.square(E[n,:])
-        #    EXXT[n, :, :] += s.diag(var_n)
+        #    EXXT[n, :, :] += np.diag(var_n)
         #
 
         # Collect expectations
@@ -90,7 +90,7 @@ class BernoulliGaussian(Distribution):
         # - axis (int): axis from where to remove the elements
         # - idx (numpy array): indices of the elements to remove
         assert axis <= len(self.dim)
-        assert s.all(idx < self.dim[axis])
+        assert np.all(idx < self.dim[axis])
         self.B.removeDimensions(axis,idx)
         self.N_B0.removeDimensions(axis,idx)
         self.N_B1.removeDimensions(axis,idx)

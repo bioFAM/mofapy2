@@ -37,11 +37,11 @@ class Bernoulli(Distribution):
 
     def density(self, x):
         assert x.shape == self.dim, "Problem with the dimensionalities"
-        return s.prod( self.params['theta']**x * (1-self.params['theta'])**(1-x) )
+        return np.prod( self.params['theta']**x * (1-self.params['theta'])**(1-x) )
 
     def loglik(self, x):
         assert x.shape == self.dim, "Problem with the dimensionalities"
-        return s.sum( x*s.log(self.params['theta']) + (1-x)*s.log(1-self.params['theta']) )
+        return np.sum( x*np.log(self.params['theta']) + (1-x)*np.log(1-self.params['theta']) )
 
     def sample(self):
         return np.random.binomial(1, self.params['theta'])

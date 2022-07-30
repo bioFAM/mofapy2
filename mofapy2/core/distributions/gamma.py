@@ -42,16 +42,16 @@ class Gamma(Distribution):
 
     def updateExpectations(self):
         E = self.params['a']/self.params['b']
-        lnE = special.digamma(self.params['a']) - s.log(self.params['b'])
+        lnE = special.digamma(self.params['a']) - np.log(self.params['b'])
         self.expectations = { 'E':E, 'lnE':lnE }
 
     def density(self, x):
         assert x.shape == self.dim, "Problem with the dimensionalities"
-        return s.prod( (1/special.gamma(self.params['a'])) * self.params['b']**self.params['a'] * x**(self.params['a']-1) * s.exp(-self.params['b']*x) )
+        return np.prod( (1/special.gamma(self.params['a'])) * self.params['b']**self.params['a'] * x**(self.params['a']-1) * np.exp(-self.params['b']*x) )
 
     def loglik(self, x):
         assert x.shape == self.dim, "Problem with the dimensionalities"
-        return s.sum( -s.log(special.gamma(self.params['a'])) + self.params['a']*s.log(self.params['b']) + (self.params['a']-1)*s.log(x) -self.params['b']*x )
+        return np.sum( -np.log(special.gamma(self.params['a'])) + self.params['a']*np.log(self.params['b']) + (self.params['a']-1)*np.log(x) -self.params['b']*x )
 
     def sample(self, n=1):
         k = self.params['a']

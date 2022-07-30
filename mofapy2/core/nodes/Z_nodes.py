@@ -83,7 +83,7 @@ class Z_Node(UnivariateGaussian_Unobserved_Variational_Node):
             Q['var'] = par_up['Qvar']
         else:
             self.mini_batch['E'] = par_up['Qmean']
-            self.mini_batch['E2'] = s.square(par_up['Qmean']) + par_up['Qvar']
+            self.mini_batch['E2'] = np.square(par_up['Qmean']) + par_up['Qvar']
 
             Q['mean'][ix,:] = par_up['Qmean']
             Q['var'][ix,:] = par_up['Qvar']
@@ -123,9 +123,9 @@ class Z_Node(UnivariateGaussian_Unobserved_Variational_Node):
         # Calculate variational updates
         for k in range(K):
             bar = gpu_utils.array(np.zeros((N,)))
-            tmp_cp1 = gpu_utils.array(Qmean[:, s.arange(K) != k])
+            tmp_cp1 = gpu_utils.array(Qmean[:, np.arange(K) != k])
             for m in range(M):
-                tmp_cp2 = gpu_utils.array(W[m]["E"][:, s.arange(K) != k].T)
+                tmp_cp2 = gpu_utils.array(W[m]["E"][:, np.arange(K) != k].T)
 
                 bar_tmp1 = gpu_utils.array(W[m]["E"][:,k])
                 bar_tmp2 = gpu_utils.array(tau[m])*(-gpu_utils.dot(tmp_cp1, tmp_cp2))
@@ -158,7 +158,7 @@ class Z_Node(UnivariateGaussian_Unobserved_Variational_Node):
         else:
             Alpha = dict()
             Alpha['E'] = 1./self.P.params['var']
-            Alpha['lnE'] = s.log(1./self.P.params['var'])
+            Alpha['lnE'] = np.log(1./self.P.params['var'])
 
         # compute term from the exponential in the Gaussian
         tmp1 = 0.5 * QE2 - PE * QE + 0.5 * PE2
@@ -168,7 +168,7 @@ class Z_Node(UnivariateGaussian_Unobserved_Variational_Node):
         tmp2 = 0.5 * Alpha["lnE"].sum()
 
         lb_p = tmp1 + tmp2
-        lb_q = -(s.log(Qvar).sum() + self.dim[0] * self.dim[1]) / 2.
+        lb_q = -(np.log(Qvar).sum() + self.dim[0] * self.dim[1]) / 2.
 
         return lb_p - lb_q
 
@@ -261,8 +261,8 @@ class SZ_Node(BernoulliGaussian_Unobserved_Variational_Node):
 
             self.mini_batch['EB']  = par_up['theta']
             self.mini_batch['E']   = par_up['mean_B1'] * par_up['theta']
-            self.mini_batch['E2']  = par_up['theta'] * (s.square(par_up['mean_B1']) + par_up['var_B1'])
-            self.mini_batch['ENN'] = par_up['theta'] * (s.square(par_up['mean_B1']) + par_up['var_B1']) + \
+            self.mini_batch['E2']  = par_up['theta'] * (np.square(par_up['mean_B1']) + par_up['var_B1'])
+            self.mini_batch['ENN'] = par_up['theta'] * (np.square(par_up['mean_B1']) + par_up['var_B1']) + \
                                      (1-par_up['theta']) * Q['var_B0'][ix, :]
 
         # self.Q.setParameters(mean_B0=np.zeros((self.dim[0], self.dim[1])), var_B0=Q['var_B0'],
@@ -316,13 +316,13 @@ class SZ_Node(BernoulliGaussian_Unobserved_Variational_Node):
         # Update each latent variable in turn (notice that the update of Z[,k] depends on the other values of Z!)
         for k in range(K):
             term1 = (theta_lnE - theta_lnEInv)[:, k]
-            term2 = 0.5 * s.log(Alpha[:,k])
+            term2 = 0.5 * np.log(Alpha[:,k])
 
             for m in range(M):
                 tau_gpu = gpu_utils.array(tau[m])
                 Wk_gpu = gpu_utils.array(W[m]["E"][:,k])
-                term4_tmp2_tmp = (tau_gpu * gpu_utils.dot(gpu_utils.array(SZ[:, s.arange(K) != k]),
-                                (Wk_gpu * gpu_utils.array(W[m]["E"][:, s.arange(K) != k].T)))).sum(axis=1)
+                term4_tmp2_tmp = (tau_gpu * gpu_utils.dot(gpu_utils.array(SZ[:, np.arange(K) != k]),
+                                (Wk_gpu * gpu_utils.array(W[m]["E"][:, np.arange(K) != k].T)))).sum(axis=1)
                 term4_tmp2[:,k] +=  weights[m] * term4_tmp2_tmp
                 del tau_gpu, Wk_gpu, term4_tmp2_tmp
             
@@ -332,7 +332,7 @@ class SZ_Node(BernoulliGaussian_Unobserved_Variational_Node):
 
             # Update S
             # NOTE there could be some precision issues in T --> loads of 1s in result
-            Qtheta[:, k] = 1. / (1. + s.exp(-(term1 + term2 - term3 + term4)))
+            Qtheta[:, k] = 1. / (1. + np.exp(-(term1 + term2 - term3 + term4)))
             Qtheta[:,k] = np.nan_to_num(Qtheta[:,k])
 
             # Update Z
@@ -358,23 +358,23 @@ class SZ_Node(BernoulliGaussian_Unobserved_Variational_Node):
         else:
             alpha = dict()
             alpha['E'] = 1./self.P.params['var_B1']
-            alpha['lnE'] = s.log(1./self.P.params['var_B1'])
+            alpha['lnE'] = np.log(1./self.P.params['var_B1'])
 
         # Calculate ELBO for Z
-        lb_pz = (alpha["lnE"].sum() - s.sum(alpha["E"] * ZZ)) / 2.
-        lb_qz = -0.5 * self.dim[1] * self.dim[0] - 0.5 * (T * s.log(Qvar) + (1. - T) * s.log(1. / alpha["E"])).sum()
+        lb_pz = (alpha["lnE"].sum() - np.sum(alpha["E"] * ZZ)) / 2.
+        lb_qz = -0.5 * self.dim[1] * self.dim[0] - 0.5 * (T * np.log(Qvar) + (1. - T) * np.log(1. / alpha["E"])).sum()
         lb_z = lb_pz - lb_qz
 
         # Calculate ELBO for T
         # T[T<1e-10] = 1e-10
         # T[T>0.9999999] = 0.9999999
         lb_pt = T * theta['lnE'] + (1. - T) * theta['lnEInv']
-        lb_qt = T * s.log(T) + (1. - T) * s.log(1. - T)
+        lb_qt = T * np.log(T) + (1. - T) * np.log(1. - T)
 
         # Replace NAs (due to theta=1) with zeros
-        lb_pt[s.isnan(lb_pt)] = 0.
-        lb_qt[s.isnan(lb_qt)] = 0.
+        lb_pt[np.isnan(lb_pt)] = 0.
+        lb_qt[np.isnan(lb_qt)] = 0.
         
-        lb_t = s.sum(lb_pt) - s.sum(lb_qt)
+        lb_t = np.sum(lb_pt) - np.sum(lb_qt)
 
         return lb_z + lb_t

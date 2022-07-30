@@ -70,8 +70,8 @@ class W_Node(UnivariateGaussian_Unobserved_Variational_Node):
 
             bar_tmp1 = gpu_utils.array(Z["E"][:,k])
 
-            bar_tmp2 = - gpu_utils.dot(gpu_utils.array(Z["E"][:,s.arange(self.dim[1])!=k]),
-                               gpu_utils.array(Qmean[:,s.arange(self.dim[1])!=k].T))
+            bar_tmp2 = - gpu_utils.dot(gpu_utils.array(Z["E"][:,np.arange(self.dim[1])!=k]),
+                               gpu_utils.array(Qmean[:,np.arange(self.dim[1])!=k].T))
             bar_tmp2 += gpu_utils.array(Y)
             bar_tmp2 *= gpu_utils.array(tau)
 
@@ -103,7 +103,7 @@ class W_Node(UnivariateGaussian_Unobserved_Variational_Node):
         else:
             Alpha = dict()
             Alpha['E'] = 1./self.P.params['var']
-            Alpha['lnE'] = s.log(1./self.P.params['var'])
+            Alpha['lnE'] = np.log(1./self.P.params['var'])
 
         # compute term from the exponential in the Gaussian
         tmp1 = 0.5 * QE2 - PE * QE + 0.5 * PE2
@@ -113,7 +113,7 @@ class W_Node(UnivariateGaussian_Unobserved_Variational_Node):
         tmp2 = 0.5 * Alpha["lnE"].sum()
 
         lb_p = tmp1 + tmp2
-        lb_q = -(s.log(Qvar).sum() + self.dim[0]*self.dim[1])/2.
+        lb_q = -(np.log(Qvar).sum() + self.dim[0]*self.dim[1])/2.
 
         return lb_p-lb_q
 
@@ -183,26 +183,26 @@ class SW_Node(BernoulliGaussian_Unobserved_Variational_Node):
             # Compute terms
             term1 = (theta_lnE-theta_lnEInv)[:,k]
 
-            term2 = 0.5*s.log(Alpha[:,k])
-            term3 = 0.5 * coeff * s.log(foo[:,k] + Alpha[:,k])
+            term2 = 0.5*np.log(Alpha[:,k])
+            term3 = 0.5 * coeff * np.log(foo[:,k] + Alpha[:,k])
 
             # term4_tmp1 = gpu_utils.dot(tauYT, Zk_cp)
 
-            # term4_tmp2_1 = gpu_utils.array(SW[:,s.arange(self.dim[1])!=k].T)
-            # term4_tmp2_2 = (Z_gpu[:,k] * gpu_utils.array(Z['E'][:,s.arange(self.dim[1])!=k]).T).T
+            # term4_tmp2_1 = gpu_utils.array(SW[:,np.arange(self.dim[1])!=k].T)
+            # term4_tmp2_2 = (Z_gpu[:,k] * gpu_utils.array(Z['E'][:,np.arange(self.dim[1])!=k]).T).T
             # term4_tmp2 = (tau_gpu*gpu_utils.dot(term4_tmp2_2, term4_tmp2_1)).sum(axis=0)
             term4_tmp2 = gpu_utils.asnumpy( (tau_gpu*gpu_utils.dot(
-                (Z_gpu[:,k] * gpu_utils.array(Z['E'][:,s.arange(self.dim[1])!=k]).T).T, 
-                gpu_utils.array(SW[:,s.arange(self.dim[1])!=k].T))
+                (Z_gpu[:,k] * gpu_utils.array(Z['E'][:,np.arange(self.dim[1])!=k]).T).T, 
+                gpu_utils.array(SW[:,np.arange(self.dim[1])!=k].T))
             ).sum(axis=0) )
 
             term4_tmp3 = foo[:,k] + Alpha[:,k]
 
-            term4 = coeff * 0.5*s.divide(s.square(term4_tmp1[:,k]-term4_tmp2),term4_tmp3)
+            term4 = coeff * 0.5*np.divide(np.square(term4_tmp1[:,k]-term4_tmp2),term4_tmp3)
 
             # Update S
             Qtheta[:,k] *= (1 - ro)
-            Qtheta[:,k] += ro * (1./(1.+s.exp(-(term1+term2-term3+term4))))
+            Qtheta[:,k] += ro * (1./(1.+np.exp(-(term1+term2-term3+term4))))
 
             # Update W
             tmp_var = 1./term4_tmp3
@@ -235,23 +235,23 @@ class SW_Node(BernoulliGaussian_Unobserved_Variational_Node):
         else:
             alpha = dict()
             alpha['E'] = 1./self.P.params['var_B1']
-            alpha['lnE'] = s.log(1./self.P.params['var_B1'])
+            alpha['lnE'] = np.log(1./self.P.params['var_B1'])
 
         # Calculate ELBO term for W
-        lb_pw = (alpha["lnE"].sum() - s.sum(alpha["E"]*WW))/2.
-        lb_qw = -0.5*self.dim[1]*self.dim[0] - 0.5*(S*s.log(Qvar) + (1.-S)*s.log(1./alpha["E"])).sum()
+        lb_pw = (alpha["lnE"].sum() - np.sum(alpha["E"]*WW))/2.
+        lb_qw = -0.5*self.dim[1]*self.dim[0] - 0.5*(S*np.log(Qvar) + (1.-S)*np.log(1./alpha["E"])).sum()
         lb_w = lb_pw - lb_qw
 
         # Calculate ELBO term for S
         # S[S<1e-10] = 1e-10
         # S[S>0.9999999] = 0.9999999
         lb_ps = S*theta['lnE'] + (1.-S)*theta['lnEInv']
-        lb_qs = S*s.log(S) + (1.-S)*s.log(1.-S)
+        lb_qs = S*np.log(S) + (1.-S)*np.log(1.-S)
 
         # Replace NAs (due to theta=1) with zeros
-        lb_ps[s.isnan(lb_ps)] = 0.
-        lb_qs[s.isnan(lb_qs)] = 0.
+        lb_ps[np.isnan(lb_ps)] = 0.
+        lb_qs[np.isnan(lb_qs)] = 0.
 
-        lb_s = s.sum(lb_ps) - s.sum(lb_qs)
+        lb_s = np.sum(lb_ps) - np.sum(lb_qs)
 
         return lb_w + lb_s

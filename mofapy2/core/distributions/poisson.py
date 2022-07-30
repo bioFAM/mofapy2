@@ -41,13 +41,13 @@ class Poisson(Distribution):
         assert x.dtype == int, "x has to be an integer array"
         theta = self.params['theta'].flatten()
         x = x.flatten()
-        # return s.prod (stats.poisson.pmf(x,theta) )
-        return s.prod( s.divide(theta**x * s.exp(-theta),s.misc.factorial(x)) )
+        # return np.prod (stats.poisson.pmf(x,theta) )
+        return np.prod( np.divide(theta**x * np.exp(-theta),s.misc.factorial(x)) )
 
     def loglik(self, x):
         assert x.shape == self.dim, "Problem with the dimensionalities"
         assert x.dtype == int, "x has to be an integer array"
         theta = self.params['theta'].flatten()
         x = x.flatten()
-        # return s.log( s.prod (stats.poisson.pmf(x,theta) ))
-        return s.sum( x*s.log(theta) - theta - s.log(s.misc.factorial(x)) )
+        # return np.log( np.prod (stats.poisson.pmf(x,theta) ))
+        return np.sum( x*np.log(theta) - theta - np.log(s.misc.factorial(x)) )

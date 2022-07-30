@@ -107,9 +107,9 @@ def simulate_data(N=200, seed=1234567, views = ["0", "1", "2", "3"], D = [500, 2
         active = 1
         alpha_tmp = [np.ones(M) * inactive]*K
         for k in range(K):
-            while s.all(alpha_tmp[k]==inactive):
+            while np.all(alpha_tmp[k]==inactive):
                 alpha_tmp[k] = np.random.choice([active,inactive], size=M, replace=True)
-        alpha = [ s.array(alpha_tmp)[:,m] for m in range(M) ]
+        alpha = [ np.array(alpha_tmp)[:,m] for m in range(M) ]
     else:
         assert len(alpha) == M
         assert len(alpha[0]) == K
@@ -162,10 +162,10 @@ def mask_samples(sim, perc = 0.2, perc_all_views = 0):
             data[m][g][masked_samples[m][g],:] = s.nan
 
     if perc_all_views > 0:
-        masked_samples_all_views = [np.random.choice(N, math.floor(N * perc_all_views), replace = False) for g in range(G)]
+        masked_samplenp.all_views = [np.random.choice(N, math.floor(N * perc_all_views), replace = False) for g in range(G)]
         for m in range(len(data)):
             for g in range(G):
-                data[m][g][masked_samples_all_views[g], :] = s.nan
+                data[m][g][masked_samplenp.all_views[g], :] = s.nan
 
 
     return data

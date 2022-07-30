@@ -29,10 +29,10 @@ class Beta(Distribution):
         else:
             self.expectations = {
                'E': np.ones(dim) * E,
-               'lnE': s.log(np.ones(dim) * E),
-               'lnEInv': s.log(1. - np.ones(dim) * E)
+               'lnE': np.log(np.ones(dim) * E),
+               'lnEInv': np.log(1. - np.ones(dim) * E)
             }
-            self.expectations["lnEInv"][s.isinf(self.expectations["lnEInv"])] = -s.inf
+            self.expectations["lnEInv"][np.isinf(self.expectations["lnEInv"])] = -np.inf
             # self.updateExpectations()
             # print("The expectation of the Beta distribution is initialized consistently with the provided parameters (not with the provided expectation)")
 
@@ -41,10 +41,10 @@ class Beta(Distribution):
 
     def updateExpectations(self):
         a, b = self.params['a'], self.params['b']
-        E = s.divide(a,a+b)
+        E = np.divide(a,a+b)
         lnE = special.digamma(a) - special.digamma(a+b)
         lnEInv = special.digamma(b) - special.digamma(a+b) # expectation of ln(1-X)
-        lnEInv[s.isinf(lnEInv)] = -s.inf # there is a numerical error in lnEInv if E=1
+        lnEInv[np.isinf(lnEInv)] = -np.inf # there is a numerical error in lnEInv if E=1
         self.expectations = { 'E':E, 'lnE':lnE, 'lnEInv':lnEInv }
 
     def sample(self, n=1):

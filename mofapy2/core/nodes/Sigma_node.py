@@ -121,7 +121,7 @@ class Sigma_Node_base(Node):
 
     def calc_sigma_terms(self, only_inverse = False):
         """
-        Method to compute the inverse of sigma and its log determinant based on the spectral decomposition
+        Method to compute the inverse of sigma and itnp.log determinant based on the spectral decomposition
          of the kernel matrices for all factors
         """
         for k in range(self.K):
@@ -129,7 +129,7 @@ class Sigma_Node_base(Node):
 
     def calc_sigma_terms_k(self, k, only_inverse = False):
         """
-        Method to compute the inverse of sigma and its log determinant based on the spectral decomposition
+        Method to compute the inverse of sigma and itnp.log determinant based on the spectral decomposition
          of the kernel matrices for a given factor k
         """
         if self.zeta[k] == 1:
@@ -143,7 +143,7 @@ class Sigma_Node_base(Node):
                 term2diag = 1/ (np.repeat(components['Dg'], self.C) * np.tile(components['Dc'], self.G) + self.zeta[k] / (1-self.zeta[k]))
                 term3 = np.kron(components['Vg'].transpose(), components['Vc'].transpose())
                 self.Sigma_inv[k, :, :] = 1 / (1 - self.zeta[k]) * gpu_utils.dot(gpu_utils.dot(term1, np.diag(term2diag)), term3)
-                self.Sigma_inv_logdet[k] = - self.Nu * s.log(1 - self.zeta[k]) + s.log(term2diag).sum()
+                self.Sigma_inv_logdet[k] = - self.Nu * np.log(1 - self.zeta[k]) + np.log(term2diag).sum()
 
                 if not only_inverse:
                     components = self.get_components(k)
@@ -250,12 +250,12 @@ class Sigma_Node_base(Node):
             self.Kg.removeFactors(idx)
         if self.Kc is not None:
             self.Kc.removeFactors(idx)
-        self.zeta = s.delete(self.zeta, axis=0, obj=idx)
+        self.zeta = np.delete(self.zeta, axis=0, obj=idx)
         self.updateDim(0, self.dim[0] - len(idx))
         self.K = self.K - 1
-        self.Sigma  = s.delete(self.Sigma, axis=0, obj=idx)
-        self.Sigma_inv  = s.delete(self.Sigma_inv, axis=0, obj=idx)
-        self.Sigma_inv_logdet  = s.delete(self.Sigma_inv_logdet, axis=0, obj=idx)
+        self.Sigma  = np.delete(self.Sigma, axis=0, obj=idx)
+        self.Sigma_inv  = np.delete(self.Sigma_inv, axis=0, obj=idx)
+        self.Sigma_inv_logdet  = np.delete(self.Sigma_inv_logdet, axis=0, obj=idx)
 
     def calc_neg_elbo_k(self, par, lidx, k, var):
 
@@ -633,7 +633,7 @@ class Sigma_Node_sparse(Sigma_Node_base):
 
     def calc_sigma_terms_k(self, k, only_inverse = False):
         """
-        Method to compute the inverse of sigma and its log determinant based on the spectral decomposition
+        Method to compute the inverse of sigma and itnp.log determinant based on the spectral decomposition
          of the kernel matrices for a given factor k
         """
         if self.zeta[k] == 1:

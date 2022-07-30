@@ -27,7 +27,7 @@ class Z_GP_Node(UnivariateGaussian_Unobserved_Variational_Node_with_Multivariate
         # Precompute terms (inverse covariance ant its determinant for each factor) to speed up computation
         tmp = self.P.params['cov']
         self.p_cov_inv = np.array([s.linalg.inv(cov) for cov in tmp]) # TODO speed-ups
-        self.p_cov_inv_diag = np.array([s.diag(c) for c in self.p_cov_inv]) # TODO speed-ups
+        self.p_cov_inv_diag = np.array([np.diag(c) for c in self.p_cov_inv]) # TODO speed-ups
 
     def add_characteristics(self, struct=None, length_scales=None):
         self.struct = np.array(struct)
@@ -39,13 +39,13 @@ class Z_GP_Node(UnivariateGaussian_Unobserved_Variational_Node_with_Multivariate
 
     def removeFactors(self, idx, axis=0):
         super().removeFactors(idx, axis)
-        self.p_cov_inv = s.delete(self.p_cov_inv, axis=0, obj=idx)
-        self.p_cov_inv_diag = s.delete(self.p_cov_inv_diag, axis=0, obj=idx)
+        self.p_cov_inv = np.delete(self.p_cov_inv, axis=0, obj=idx)
+        self.p_cov_inv_diag = np.delete(self.p_cov_inv_diag, axis=0, obj=idx)
         self.K = self.dim[1]
         if not self.length_scales is None:
-            self.length_scales = s.delete(self.length_scales, obj=idx)
+            self.length_scales = np.delete(self.length_scales, obj=idx)
         if not self.struct is None:
-            self.struct = s.delete(self.struct, obj=idx)
+            self.struct = np.delete(self.struct, obj=idx)
 
     def get_mini_batch(self):
         """ Method to fetch minibatch """
@@ -95,7 +95,7 @@ class Z_GP_Node(UnivariateGaussian_Unobserved_Variational_Node_with_Multivariate
             Q['var'] = par_up['Qvar']
         else:
             self.mini_batch['E'] = par_up['Qmean']
-            self.mini_batch['E2'] = s.square(par_up['Qmean']) + par_up['Qvar']
+            self.mini_batch['E2'] = np.square(par_up['Qmean']) + par_up['Qvar']
 
             Q['mean'][ix,:] = par_up['Qmean']
             Q['var'][ix,:] = par_up['Qvar']
@@ -135,9 +135,9 @@ class Z_GP_Node(UnivariateGaussian_Unobserved_Variational_Node_with_Multivariate
         # Calculate variational updates
         for k in range(K):
             bar = gpu_utils.array(np.zeros((N,)))
-            tmp_cp1 = gpu_utils.array(Qmean[:, s.arange(K) != k])
+            tmp_cp1 = gpu_utils.array(Qmean[:, np.arange(K) != k])
             for m in range(M):
-                tmp_cp2 = gpu_utils.array(W[m]["E"][:, s.arange(K) != k].T)
+                tmp_cp2 = gpu_utils.array(W[m]["E"][:, np.arange(K) != k].T)
 
                 bar_tmp1 = gpu_utils.array(W[m]["E"][:,k])
                 bar_tmp2 = gpu_utils.array(tau[m])*(-gpu_utils.dot(tmp_cp1, tmp_cp2))
@@ -146,7 +146,7 @@ class Z_GP_Node(UnivariateGaussian_Unobserved_Variational_Node_with_Multivariate
             bar += precomputed_bar[:,k]
             bar = gpu_utils.asnumpy(bar)
             
-            p_cov_inv_k_with_zerodiag = p_cov_inv[k,:,:] - p_cov_inv_diag[k,:] * s.eye(N)
+            p_cov_inv_k_with_zerodiag = p_cov_inv[k,:,:] - p_cov_inv_diag[k,:] * np.eye(N)
             scaled_inv_with_zerodiag = gpu_utils.dot(gpu_utils.dot(np.diag(np.sqrt(Alpha[:, k])), p_cov_inv_k_with_zerodiag),np.diag(np.sqrt(Alpha[:, k])))
 
             Qvar[:, k] = 1. / (Alpha[:, k] * p_cov_inv_diag[k, :].transpose() + foo[:,k])
@@ -183,7 +183,7 @@ class Z_GP_Node(UnivariateGaussian_Unobserved_Variational_Node_with_Multivariate
             Alpha['lnE'] = np.zeros((self.N, self.K))
 
         # compute term from the exponential in the Gaussian
-        p_cov_inv_k_with_zerodiag = p_cov_inv[k,:,:] - p_cov_inv_diag[k,:] * s.eye(self.N)
+        p_cov_inv_k_with_zerodiag = p_cov_inv[k,:,:] - p_cov_inv_diag[k,:] * np.eye(self.N)
         scaled_inv_with_zerodiag = gpu_utils.dot(
             gpu_utils.dot(np.diag(np.sqrt(Alpha['E'][:, k])), p_cov_inv_k_with_zerodiag[:, :]),
             np.diag(np.sqrt(Alpha['E'][:, k])))
@@ -194,7 +194,7 @@ class Z_GP_Node(UnivariateGaussian_Unobserved_Variational_Node_with_Multivariate
         tmp2 = 0.5 * p_cov_inv_logdet[k] + 0.5 * Alpha["lnE"][:, k].sum()
         lb_p = tmp1 + tmp2
 
-        lb_q = -0.5 * s.log(Qvar[:,k]).sum() # term -N*K*(log(2* np.pi)) cancels out between p and q term; -N/2 is added below
+        lb_q = -0.5 * np.log(Qvar[:,k]).sum() # term -N*K*(log(2* np.pi)) cancels out between p and q term; -N/2 is added below
 
         return lb_p - lb_q
     
@@ -216,5 +216,5 @@ class Z_GP_Node(UnivariateGaussian_Unobserved_Variational_Node_with_Multivariate
             cov = self.P.params['cov']
 
         samp_tmp = [np.random.multivariate_normal(mu[:,i], cov[i,:,:]) for i in range(self.dim[1])]
-        self.samp = s.array([tmp-tmp.mean() for tmp in samp_tmp]).transpose()
+        self.samp = np.array([tmp-tmp.mean() for tmp in samp_tmp]).transpose()
         return self.samp

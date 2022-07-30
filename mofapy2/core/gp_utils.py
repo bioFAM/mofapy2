@@ -107,9 +107,9 @@ def get_l_grid(X, n_grid = 5, idx = None):
 #     https://limix.readthedocs.io/en/stable/api/limix.qc.normalise_covariance.html)
 #     """
 #     n = C.shape[0]
-#     P = s.eye(n) - np.ones((n,n))/float(n) # Gower’s centering matrix
-#     CP = C - C.mean(0)[:, s.newaxis]
-#     trPCP = s.sum(P * CP) # trace of doubly centered covariance matrix
+#     P = np.eye(n) - np.ones((n,n))/float(n) # Gower’s centering matrix
+#     CP = C - C.mean(0)[:, np.newaxis]
+#     trPCP = np.sum(P * CP) # trace of doubly centered covariance matrix
 #     r = (n-1) / trPCP
 #     return r
 #

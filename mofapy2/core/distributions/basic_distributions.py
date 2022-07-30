@@ -82,9 +82,9 @@ class Distribution(object):
             indices of the elements to remove
         """
         assert axis <= len(self.dim)
-        assert s.all(idx < self.dim[axis])
-        for k in self.params.keys(): self.params[k] = s.delete(self.params[k], idx, axis)
-        for k in self.expectations.keys(): self.expectations[k] = s.delete(self.expectations[k], idx, axis)
+        assert np.all(idx < self.dim[axis])
+        for k in self.params.keys(): self.params[k] = np.delete(self.params[k], idx, axis)
+        for k in self.expectations.keys(): self.expectations[k] = np.delete(self.expectations[k], idx, axis)
         self.updateDim(axis=axis, new_dim=self.dim[axis]-len(idx))
 
     def updateDim(self, axis, new_dim):

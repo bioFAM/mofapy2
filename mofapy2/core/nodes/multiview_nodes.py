@@ -96,7 +96,7 @@ class Multiview_Node(Node):
         m: iterable
             views to update
         """
-        assert s.all(m in self.activeM), "Trying to update the dimensionality of a node that doesnt exist in a view"
+        assert np.all(m in self.activeM), "Trying to update the dimensionality of a node that doesnt exist in a view"
         M = self.activeM if m is None else m
         for m in M: self.nodes[m].updateDim(axis,new_dim)
 

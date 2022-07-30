@@ -67,7 +67,7 @@ class MultivariateGaussian(Distribution):
 
         ### Initialise the covariance
         
-        if isinstance(cov,s.ndarray):
+        if isinstance(cov,np.ndarray):
             # If 'cov' is a matrix and not a tensor, broadcast it along the zeroth axis
             if len(cov.shape) == 2:
                 if axis_cov == 1 :
@@ -76,14 +76,14 @@ class MultivariateGaussian(Distribution):
                 else:
                     assert cov.shape == (dim[0],dim[0]), "If providing a 2d-array, the covariance has to be of dim (N,N)"
                     cov = [cov] * dim[1]
-                cov = s.array(cov)
+                cov = np.array(cov)
         # If 'cov' is a list transform it to a tensor
         elif isinstance(cov, list):
             if axis_cov == 1:
                 assert cov[0].shape ==  (dim[1],dim[1]) and len(cov) == dim[0], "If providing a list, the covariance has to be a list of length N with arrays of dim (D,D)"
             else:
                 assert cov[0].shape ==  (dim[0],dim[0]) and len(cov) == dim[1], "If providing a list, the covariance has to be a list of length D with arrays of dim (N,N)"
-            cov = s.array(cov)
+            cov = np.array(cov)
         else: 
             print("The covariance needs to be a list or an array.")
             sys.exit()
@@ -127,14 +127,14 @@ class MultivariateGaussian(Distribution):
             D = self.dim[1]
             for n in range(self.dim[0]):
                 qterm = (x[n,:]-self.params['mean'][n,:]).T.dot(linalg.det(self.params['cov'][n])).dot(x[n,:]-self.params['mean'][n,:])
-                l += -0.5*D*s.log(2*s.pi) - 0.5*s.log(linalg.det(self.params['cov'][n])) - 0.5 * qterm
-            # return s.sum( s.log(stats.multivariate_normal.pdf(x, mean=self.mean[n,:], cov=self.cov[n,:,:])) )
+                l += -0.5*D*np.log(2*np.pi) - 0.5*np.log(linalg.det(self.params['cov'][n])) - 0.5 * qterm
+            # return np.sum( np.log(stats.multivariate_normal.pdf(x, mean=self.mean[n,:], cov=self.cov[n,:,:])) )
 
         else:
             N = self.dim[0]
             for d in range(self.dim[1]):
                 qterm = (x[:, d] - self.params['mean'][:, d]).dot(linalg.det(self.params['cov'][d])).dot((x[:, d] - self.params['mean'][:, d]).T)
-                l += -0.5 * N * s.log(2 * s.pi) - 0.5 * s.log(linalg.det(self.params['cov'][d])) - 0.5 * qterm
+                l += -0.5 * N * np.log(2 * np.pi) - 0.5 * np.log(linalg.det(self.params['cov'][d])) - 0.5 * qterm
 
         return l
 
@@ -143,25 +143,25 @@ class MultivariateGaussian(Distribution):
         # - axis (int): axis from where to remove the elements
         # - idx (numpy array): indices of the elements to remove
         assert axis <= len(self.dim)
-        assert s.all(idx < self.dim[axis])
+        assert np.all(idx < self.dim[axis])
 
-        self.params["mean"] = s.delete(self.params["mean"], axis=axis, obj=idx)
-        self.expectations["E"] = s.delete(self.expectations["E"], axis=axis, obj=idx)
-        self.expectations["E2"] = s.delete(self.expectations["E2"], axis=axis, obj=idx)
+        self.params["mean"] = np.delete(self.params["mean"], axis=axis, obj=idx)
+        self.expectations["E"] = np.delete(self.expectations["E"], axis=axis, obj=idx)
+        self.expectations["E2"] = np.delete(self.expectations["E2"], axis=axis, obj=idx)
 
         if self.axis_cov == 1: #cov has shape (N,D,D) for mean of shape (N,D)
             if axis == 0:
-                self.params["cov"] = s.delete(self.params["cov"], axis=0, obj=idx)
+                self.params["cov"] = np.delete(self.params["cov"], axis=0, obj=idx)
             else:
-                self.params["cov"] = s.delete(self.params["cov"], axis=1, obj=idx)
-                self.params["cov"] = s.delete(self.params["cov"], axis=2, obj=idx)
+                self.params["cov"] = np.delete(self.params["cov"], axis=1, obj=idx)
+                self.params["cov"] = np.delete(self.params["cov"], axis=2, obj=idx)
 
         else: #cov has shape (D,N,N) for mean of shape (N,D)
             if axis == 0:
-                self.params["cov"] = s.delete(self.params["cov"], axis=1, obj=idx)
-                self.params["cov"] = s.delete(self.params["cov"], axis=2, obj=idx)
+                self.params["cov"] = np.delete(self.params["cov"], axis=1, obj=idx)
+                self.params["cov"] = np.delete(self.params["cov"], axis=2, obj=idx)
             else:
-                self.params["cov"] = s.delete(self.params["cov"], axis=0, obj=idx)
+                self.params["cov"] = np.delete(self.params["cov"], axis=0, obj=idx)
         self.updateDim(axis=axis, new_dim=self.dim[axis] - len(idx))
 
     def sample(self):
@@ -179,7 +179,7 @@ class MultivariateGaussian(Distribution):
 
 #    def entropy(self):
 #         tmp = sum( [ logdet(self.cov[i,:,:]) for i in range(self.dim[0]) ] )
-#         return ( 0.5*(tmp + (self.dim[0]*self.dim[1])*(1+s.log(2*pi)) ).sum() )
+#         return ( 0.5*(tmp + (self.dim[0]*self.dim[1])*(1+np.log(2*pi)) ).sum() )
 
 
 class MultivariateGaussian_reparam(Distribution):
@@ -221,7 +221,7 @@ class MultivariateGaussian_reparam(Distribution):
         assert lamb.shape[0] == dim[0] and lamb.shape[1] == dim[1], "The given lamb could not be broadcasted into a matrix with shape (N,D) "
 
         # check K has the right dimensions
-        if isinstance(K, s.ndarray):
+        if isinstance(K, np.ndarray):
             # If 'K' is a matrix and not a tensor, broadcast it along the zeroth axis
             if len(K.shape) == 2:
                 if axis_cov == 1:
@@ -232,7 +232,7 @@ class MultivariateGaussian_reparam(Distribution):
                     assert K.shape == (
                     dim[0], dim[0]), "If providing a 2d-array, K has to be of dim (N,N)"
                     K = [K] * dim[1]
-                K = s.array(K)
+                K = np.array(K)
         # If 'K' is a list transform it to a tensor
         elif isinstance(K, list):
             if axis_cov == 1:
@@ -241,7 +241,7 @@ class MultivariateGaussian_reparam(Distribution):
             else:
                 assert K[0].shape == (dim[0], dim[0]) and len(K) == dim[
                     1], "If providing a list, K has to be a list of length D with arrays of dim (N,N)"
-            K = s.array(K)
+            K = np.array(K)
         else:
             print("The input K needs to be a list or an array.")
             sys.exit()
@@ -301,23 +301,23 @@ class MultivariateGaussian_reparam(Distribution):
         # - axis (int): axis from where to remove the elements
         # - idx (numpy array): indices of the elements to remove
         assert axis <= len(self.dim)
-        assert s.all(idx < self.dim[axis])
+        assert np.all(idx < self.dim[axis])
 
-        self.params["alpha"] = s.delete(self.params["alpha"], axis=axis, obj=idx)
-        self.expectations["E"] = s.delete(self.expectations["E"], axis=axis, obj=idx)
-        self.expectations["E2"] = s.delete(self.expectations["E2"], axis=axis, obj=idx)
+        self.params["alpha"] = np.delete(self.params["alpha"], axis=axis, obj=idx)
+        self.expectations["E"] = np.delete(self.expectations["E"], axis=axis, obj=idx)
+        self.expectations["E2"] = np.delete(self.expectations["E2"], axis=axis, obj=idx)
 
         if self.axis_cov == 1: #K has shape (N,D,D) for mean of shape (N,D)
             if axis == 0:
-                self.params["K"] = s.delete(self.params["K"], axis=0, obj=idx)
+                self.params["K"] = np.delete(self.params["K"], axis=0, obj=idx)
             else:
-                self.params["K"] = s.delete(self.params["K"], axis=1, obj=idx)
-                self.params["K"] = s.delete(self.params["K"], axis=2, obj=idx)
+                self.params["K"] = np.delete(self.params["K"], axis=1, obj=idx)
+                self.params["K"] = np.delete(self.params["K"], axis=2, obj=idx)
 
         else: #K has shape (D,N,N) for mean of shape (N,D)
             if axis == 0:
-                self.params["K"] = s.delete(self.params["K"], axis=1, obj=idx)
-                self.params["k"] = s.delete(self.params["K"], axis=2, obj=idx)
+                self.params["K"] = np.delete(self.params["K"], axis=1, obj=idx)
+                self.params["k"] = np.delete(self.params["K"], axis=2, obj=idx)
             else:
-                self.params["K"] = s.delete(self.params["K"], axis=0, obj=idx)
+                self.params["K"] = np.delete(self.params["K"], axis=0, obj=idx)
         self.updateDim(axis=axis, new_dim=self.dim[axis] - len(idx))

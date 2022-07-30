@@ -50,16 +50,16 @@ class UnivariateGaussian(Distribution):
 
     def density(self, x):
         assert x.shape == self.dim, "Problem with the dimensionalities"
-        # print stats.norm.pdf(x, loc=self.mean, scale=s.sqrt(self.var))
-        return s.sum( (1/s.sqrt(2*s.pi*self.params['var'])) * s.exp(-0.5*(x-self.params['mean'])**2/self.params['var']) )
+        # print stats.norm.pdf(x, loc=self.mean, scale=np.sqrt(self.var))
+        return np.sum( (1/np.sqrt(2*np.pi*self.params['var'])) * np.exp(-0.5*(x-self.params['mean'])**2/self.params['var']) )
 
     def loglik(self, x):
         assert x.shape == self.dim, "Problem with the dimensionalities"
-        # return s.log(stats.norm.pdf(x, loc=self.mean, scale=s.sqrt(self.var)))
-        return s.sum( -0.5*s.log(2*s.pi) - 0.5*s.log(self.params['var']) -0.5*(x-self.params['mean'])**2/self.params['var'] )
+        # return np.log(stats.norm.pdf(x, loc=self.mean, scale=np.sqrt(self.var)))
+        return np.sum( -0.5*np.log(2*np.pi) - 0.5*np.log(self.params['var']) -0.5*(x-self.params['mean'])**2/self.params['var'] )
 
     def entropy(self):
-        return s.sum( 0.5*s.log(self.params['var']) + 0.5*(1+s.log(2*s.pi)) )
+        return np.sum( 0.5*np.log(self.params['var']) + 0.5*(1+np.log(2*np.pi)) )
 
     def sample(self):
         return np.random.normal(self.params['mean'], np.sqrt(self.params['var']))

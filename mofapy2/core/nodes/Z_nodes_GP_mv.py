@@ -24,7 +24,7 @@ class Z_GP_Node_mv(MultivariateGaussian_Unobserved_Variational_Node):
         # Precompute terms (inverse covariance ant its determinant for each factor) to speed up computation
         tmp = self.P.params['cov']
         self.p_cov_inv = np.array([s.linalg.inv(cov) for cov in tmp])
-        self.p_cov_inv_diag = np.array([s.diag(c) for c in self.p_cov_inv])
+        self.p_cov_inv_diag = np.array([np.diag(c) for c in self.p_cov_inv])
 
 
     def precompute(self, options):
@@ -34,8 +34,8 @@ class Z_GP_Node_mv(MultivariateGaussian_Unobserved_Variational_Node):
     def removeFactors(self, idx, axis=0):
         super().removeFactors(idx, axis)
         self.K = self.dim[1]
-        self.p_cov_inv = s.delete(self.p_cov_inv, axis=0, obj=idx)
-        self.p_cov_inv_diag = s.delete(self.p_cov_inv_diag, axis=0, obj=idx)
+        self.p_cov_inv = np.delete(self.p_cov_inv, axis=0, obj=idx)
+        self.p_cov_inv_diag = np.delete(self.p_cov_inv_diag, axis=0, obj=idx)
 
     def get_mini_batch(self):
         """ Method to fetch minibatch """
@@ -105,9 +105,9 @@ class Z_GP_Node_mv(MultivariateGaussian_Unobserved_Variational_Node):
         # Calculate variational updates
         for k in range(K):
             bar = gpu_utils.array(np.zeros((N,)))
-            tmp_cp1 = gpu_utils.array(Qmean[:, s.arange(K) != k])
+            tmp_cp1 = gpu_utils.array(Qmean[:, np.arange(K) != k])
             for m in range(M):
-                tmp_cp2 = gpu_utils.array(W[m]["E"][:, s.arange(K) != k].T)
+                tmp_cp2 = gpu_utils.array(W[m]["E"][:, np.arange(K) != k].T)
 
                 bar_tmp1 = gpu_utils.array(W[m]["E"][:,k])
                 bar_tmp2 = gpu_utils.array(tau[m])*(-gpu_utils.dot(tmp_cp1, tmp_cp2))
@@ -197,5 +197,5 @@ class Z_GP_Node_mv(MultivariateGaussian_Unobserved_Variational_Node):
     #         cov = self.P.params['cov']
     #
     #     samp_tmp = [np.random.multivariate_normal(mu[:,i], cov[i,:,:]) for i in range(self.dim[1])]
-    #     self.samp = s.array([tmp-tmp.mean() for tmp in samp_tmp]).transpose()
+    #     self.samp = np.array([tmp-tmp.mean() for tmp in samp_tmp]).transpose()
     #     return self.samp

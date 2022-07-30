@@ -676,7 +676,7 @@ class entry_point(object):
                 print("\nGPU mode is activated, but GPU not found... switching to CPU mode")
                 print('For GPU mode, you need:')
                 print('1 - Make sure that you are running MOFA+ on a machine with an NVIDIA GPU')
-                print('2 - Install CUPY following instructions on https://docs-cupy.chainer.org/en/stable/install.html\n')
+                print('2 - Innp.all CUPY following instructions on https://docs-cupy.chainer.org/en/stable/innp.all.html\n')
                 sys.stdout.flush()
                 gpu_mode = False
         self.train_opts['gpu_mode'] = gpu_mode
@@ -1390,4 +1390,4 @@ def mofa(adata, groups_label: bool = None, use_raw: bool = False, use_layer: boo
                 else:
                     print("Saved MOFA embeddings in adata.obsm['X_mofa'] slot.")
     else:
-        print("Can not add embeddings and loadings to AnnData object since h5py is not installed.")
+        print("Can not add embeddings and loadings to AnnData object since h5py is not innp.alled.")

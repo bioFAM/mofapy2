@@ -41,14 +41,14 @@ class Binomial(Distribution):
     def density(self, x):
         assert x.shape == self.dim, "Problem with the dimensionalities"
         assert x.dtype == int, "x has to be an integer array"
-        # return s.prod( stats.binom.pmf(x, self.params["N"], self.theta) )
-        return s.prod( special.binom(self.params["N"],x) * self.params["theta"]**x * (1-self.params["theta"])**(self.params["N"]-x) )
+        # return np.prod( stats.binom.pmf(x, self.params["N"], self.theta) )
+        return np.prod( special.binom(self.params["N"],x) * self.params["theta"]**x * (1-self.params["theta"])**(self.params["N"]-x) )
 
     def loglik(self, x):
         assert x.shape == self.dim, "Problem with the dimensionalities"
         assert x.dtype == int, "x has to be an integer array"
-        # print s.sum (stats.binom.logpmf(x, self.params["N"], self.theta) )
-        return s.sum( s.log(special.binom(self.params["N"],x)) + x*s.log(self.params["theta"]) + (self.params["N"]-x)*s.log(1-self.params["theta"]) )
+        # print np.sum (stats.binom.logpmf(x, self.params["N"], self.theta) )
+        return np.sum( np.log(special.binom(self.params["N"],x)) + x*np.log(self.params["theta"]) + (self.params["N"]-x)*np.log(1-self.params["theta"]) )
 
     def sample(self):
         return np.random.binomial(self.params['N'], self.params['theta'])

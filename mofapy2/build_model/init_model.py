@@ -97,7 +97,7 @@ class initModel(object):
                 # PCA initialisation
                 elif qmean == "pca":
                     pca = sklearn.decomposition.PCA(n_components=self.K, whiten=True)
-                    Ytmp = s.concatenate(Y, axis=1)
+                    Ytmp = np.concatenate(Y, axis=1)
 
                     if impute == True:
                         if np.any(np.isnan(Ytmp)):
@@ -111,7 +111,7 @@ class initModel(object):
                 # scale factor values from -1 to 1 (per factor)
                 qmean = 2.*(qmean - np.min(qmean,axis=0))/np.ptp(qmean,axis=0)-1
 
-            elif isinstance(qmean, s.ndarray):
+            elif isinstance(qmean, np.ndarray):
                 assert qmean.shape == (self.N, self.K), "Wrong shape for the expectation of the Q distribution of Z"
 
             elif isinstance(qmean, (int, float)):
@@ -154,12 +154,12 @@ class initModel(object):
         # mean
         pmean = np.ones((self.N, self.K)) * pmean
         if isinstance(pvar, (int,float)):
-            pvar = s.array([s.eye(self.N)*pvar for k in range(self.K)])
+            pvar = np.array([np.eye(self.N)*pvar for k in range(self.K)])
 
         ## Initialise variational distribution (Q)
 
         # variance
-        qvar = s.array([s.eye(self.N)*qvar for k in range(self.K)])
+        qvar = np.array([np.eye(self.N)*qvar for k in range(self.K)])
 
         # mean
         if qmean is not None:
@@ -178,7 +178,7 @@ class initModel(object):
                 # PCA initialisation
                 elif qmean == "pca":
                     pca = sklearn.decomposition.PCA(n_components=self.K, whiten=True)
-                    Ytmp = s.concatenate(Y, axis=1)
+                    Ytmp = np.concatenate(Y, axis=1)
 
                     if impute == True:
                         if np.any(np.isnan(Ytmp)):
@@ -192,7 +192,7 @@ class initModel(object):
                 # scale factor values from -1 to 1 (per factor)
                 qmean = 2.*(qmean - np.min(qmean,axis=0))/np.ptp(qmean,axis=0)-1
 
-            elif isinstance(qmean, s.ndarray):
+            elif isinstance(qmean, np.ndarray):
                 assert qmean.shape == (self.N, self.K), "Wrong shape for the expectation of the Q distribution of Z"
 
             elif isinstance(qmean, (int, float)):
@@ -218,7 +218,7 @@ class initModel(object):
         #     weight_views = weight_views
         # )
 
-    def initU(self, pmean=0., pvar=1., qmean=0, qvar=1., qE=None, qE2=None, Y = None, impute=True, idx_inducing = None, weight_views = False): # prior has diagonal covariance here, ls optimiation in Sigma node
+    def initU(self, pmean=0., pvar=1., qmean=0, qvar=1., qE=None, qE2=None, Y = None, impute=True, idx_inducing = None, weight_views = False): # prior hanp.diagonal covariance here, ls optimiation in Sigma node
         """Method to initialise the inducing points
 
          PARAMETERS
@@ -246,13 +246,13 @@ class initModel(object):
         # mean
         pmean = np.ones((Nu, self.K)) * pmean
         if isinstance(pvar, (int, float)):
-            pvar = s.array([s.eye(Nu) * pvar for k in range(self.K)])
+            pvar = np.array([np.eye(Nu) * pvar for k in range(self.K)])
 
         ## Initialise variational distribution (Q)
         qmean = np.ones((Nu, self.K)) * qmean
 
         # variance
-        qvar = s.array([s.eye(Nu) * qvar for k in range(self.K)])
+        qvar = np.array([np.eye(Nu) * qvar for k in range(self.K)])
 
         # Initialise the node
         self.nodes["U"] = U_GP_Node_mv(
@@ -295,7 +295,7 @@ class initModel(object):
                 elif qmean == "pca":
                     # whiten=True scales the principal components to match the prior N(0,1)
                     pca = sklearn.decomposition.PCA(n_components=self.K, whiten=True)
-                    Ytmp = s.concatenate(Y, axis=1)
+                    Ytmp = np.concatenate(Y, axis=1)
 
                     if impute == True:
                         if np.any(np.isnan(Ytmp)):
@@ -309,7 +309,7 @@ class initModel(object):
                 # scale factor values from -1 to 1 (per factor)
                 qmean = 2.*(qmean - np.min(qmean,axis=0))/np.ptp(qmean,axis=0)-1
 
-            elif isinstance(qmean, s.ndarray):
+            elif isinstance(qmean, np.ndarray):
                 assert qmean.shape == (self.N, self.K), "Wrong shape for the expectation of the Q distribution of Z"
 
             elif isinstance(qmean, (int, float)):
@@ -399,7 +399,7 @@ class initModel(object):
                 qmean_T1 = stats.norm.rvs(loc=0, scale=1, size=(self.N, self.K))
             elif qmean_T1 == "pca":
                 pca = sklearn.decomposition.PCA(n_components=self.K, whiten=True)
-                Ytmp = s.concatenate(Y, axis=1)
+                Ytmp = np.concatenate(Y, axis=1)
 
                 if impute == True:
                     if np.any(np.isnan(Ytmp)):
@@ -413,7 +413,7 @@ class initModel(object):
                 print("%s initialisation not implemented for Z" % qmean_T1)
                 exit()
 
-        elif isinstance(qmean_T1, s.ndarray):
+        elif isinstance(qmean_T1, np.ndarray):
             assert qmean_T1.shape == (self.N, self.K), "Wrong dimensionality"
 
         elif isinstance(qmean_T1, (int, float)):
@@ -479,7 +479,7 @@ class initModel(object):
                         pca.fit(Y[m])
                         qmean_S1_tmp = pca.components_.T
 
-                elif isinstance(qmean, s.ndarray):
+                elif isinstance(qmean, np.ndarray):
                     assert qmean.shape == (
                     self.D[m], self.K), "Wrong shape for the expectation of the Q distribution of W"
                     qmean_m = qmean
@@ -546,7 +546,7 @@ class initModel(object):
                 # if Y is not None:
                 #     qmean_S1_tmp *= np.nanstd(Y[m]) 
 
-            elif isinstance(qmean_S1,s.ndarray):
+            elif isinstance(qmean_S1,np.ndarray):
                 assert qmean_S1.shape == (self.D[m],self.K), "Wrong dimensionality"
 
             elif isinstance(qmean_S1,(int,float)):
@@ -645,8 +645,8 @@ class initModel(object):
 
             # Poisson noise model for count data
             if self.lik[m] == "poisson":
-                tmp = 0.25 + 0.17*s.nanmax(self.data[m],axis=0)
-                tmp = s.repeat(tmp[None,:], self.N, axis=0)
+                tmp = 0.25 + 0.17*np.nanmax(self.data[m],axis=0)
+                tmp = np.repeat(tmp[None,:], self.N, axis=0)
                 tau_list[m] = Tau_Seeger(dim=(self.N, self.D[m]), value=tmp)
 
             # Bernoulli noise model for binary data
