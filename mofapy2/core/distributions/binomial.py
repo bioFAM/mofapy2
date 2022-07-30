@@ -1,3 +1,4 @@
+import numpy as np
 import scipy as s
 import scipy.special as special
 import scipy.stats as stats
@@ -19,15 +20,15 @@ class Binomial(Distribution):
         Distribution.__init__(self, dim)
 
         # Initialise parameters
-        theta = s.ones(dim)*theta
-        N = s.ones(dim)*N
+        theta = np.ones(dim)*theta
+        N = np.ones(dim)*N
         self.params = { 'theta':theta, 'N':N }
 
         # Initialise expectations
         if E is None:
             self.updateExpectations()
         else:
-            E = s.ones(dim)*E
+            E = np.ones(dim)*E
             self.expectations = { 'E':E }
 
         # Check that dimensionalities match
@@ -50,4 +51,4 @@ class Binomial(Distribution):
         return s.sum( s.log(special.binom(self.params["N"],x)) + x*s.log(self.params["theta"]) + (self.params["N"]-x)*s.log(1-self.params["theta"]) )
 
     def sample(self):
-        return s.random.binomial(self.params['N'], self.params['theta'])
+        return np.random.binomial(self.params['N'], self.params['theta'])

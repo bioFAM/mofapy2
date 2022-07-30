@@ -96,7 +96,7 @@ class W_Node(UnivariateGaussian_Unobserved_Variational_Node):
         if "MuW" in self.markov_blanket:
             PE, PE2 = self.markov_blanket['MuW'].getExpectations()['E'], self.markov_blanket['MuW'].getExpectations()['E2']
         else:
-            PE, PE2 = self.P.getParameters()["mean"], s.zeros((self.dim[0],self.dim[1]))
+            PE, PE2 = self.P.getParameters()["mean"], np.zeros((self.dim[0],self.dim[1]))
 
         if 'AlphaW' in self.markov_blanket:
             Alpha = self.markov_blanket["AlphaW"].getExpectations(expand=True)
@@ -222,7 +222,7 @@ class SW_Node(BernoulliGaussian_Unobserved_Variational_Node):
         Qvar_S0 += ro/Alpha
 
         # Save updated parameters of the Q distribution
-        self.Q.setParameters(mean_B0=s.zeros((self.dim[0],self.dim[1])), var_B0=Qvar_S0, mean_B1=Qmean_S1, var_B1=Qvar_S1, theta=Qtheta)
+        self.Q.setParameters(mean_B0=np.zeros((self.dim[0],self.dim[1])), var_B0=Qvar_S0, mean_B1=Qmean_S1, var_B1=Qvar_S1, theta=Qtheta)
 
     def calculateELBO(self):
         # Collect parameters and expectations

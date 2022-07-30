@@ -1,8 +1,8 @@
 from __future__ import division
-import numpy as np
 from mofapy2.core import gpu_utils
 from mofapy2.core.distributions import *
 import scipy as s
+import numpy as np
 
 # Import manually defined functions
 from .variational_nodes import UnivariateGaussian_Unobserved_Variational_Node
@@ -101,8 +101,8 @@ class ZgU_node(UnivariateGaussian_Unobserved_Variational_Node):
         # for non-structured factors take the standard updates for Z, ignoring U
 
         # Precompute terms to speed up GPU computation (only required for non-structured updates)
-        foo = gpu_utils.array(s.zeros((N, K)))
-        precomputed_bar = gpu_utils.array(s.zeros((N, K)))
+        foo = gpu_utils.array(np.zeros((N, K)))
+        precomputed_bar = gpu_utils.array(np.zeros((N, K)))
         for m in range(M):
             tau_gpu = gpu_utils.array(tau[m])
             foo += weights[m] * gpu_utils.dot(tau_gpu, gpu_utils.array(W[m]["E2"]))
@@ -115,7 +115,7 @@ class ZgU_node(UnivariateGaussian_Unobserved_Variational_Node):
         for k in range(K):
             unstructured = (Sigma['cov'][k] == np.eye(N)).all() # TODO: Are there better ways to choose between sparse and non-sparse inference depending on factor smoothness?
             if unstructured: # updates according to q(z) without sparse inference
-                    bar = gpu_utils.array(s.zeros((N,)))
+                    bar = gpu_utils.array(np.zeros((N,)))
                     tmp_cp1 = gpu_utils.array(Qmean[:, s.arange(K) != k])
                     for m in range(M):
                         tmp_cp2 = gpu_utils.array(W[m]["E"][:, s.arange(K) != k].T)

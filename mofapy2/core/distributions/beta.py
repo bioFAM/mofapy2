@@ -1,3 +1,4 @@
+import numpy as np
 import scipy as s
 import scipy.special as special
 from .basic_distributions import Distribution
@@ -18,8 +19,8 @@ class Beta(Distribution):
         Distribution.__init__(self, dim)
 
         # Initialise parameters
-        a = s.ones(dim)*a
-        b = s.ones(dim)*b
+        a = np.ones(dim)*a
+        b = np.ones(dim)*b
         self.params = { 'a':a, 'b':b }
 
         # Initialise expectations
@@ -27,9 +28,9 @@ class Beta(Distribution):
             self.updateExpectations()
         else:
             self.expectations = {
-               'E': s.ones(dim) * E,
-               'lnE': s.log(s.ones(dim) * E),
-               'lnEInv': s.log(1. - s.ones(dim) * E)
+               'E': np.ones(dim) * E,
+               'lnE': s.log(np.ones(dim) * E),
+               'lnEInv': s.log(1. - np.ones(dim) * E)
             }
             self.expectations["lnEInv"][s.isinf(self.expectations["lnEInv"])] = -s.inf
             # self.updateExpectations()
@@ -49,4 +50,4 @@ class Beta(Distribution):
     def sample(self, n=1):
         a = self.params['a']
         b = self.params['b']
-        return s.random.beta(a, b)
+        return np.random.beta(a, b)

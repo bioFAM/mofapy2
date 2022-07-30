@@ -1,11 +1,7 @@
 from __future__ import division
 import sys
-from mofapy2.core.nodes.variational_nodes import *
-from mofapy2.core.nodes.Kc_node import Kc_Node
-from mofapy2.core.nodes.Kg_node import Kg_Node
-from mofapy2.core.gp_utils import *
 import scipy as s
-from mofapy2.core import gpu_utils
+import numpy as np
 import pandas as pd
 # from fastdtw import fastdtw
 import copy
@@ -14,6 +10,11 @@ import copy
 # from mofapy2.core.distributions.multi_task_GP import MultitaskGPModel, ELBO, myMultitaskGaussianLikelihood
 # from gpytorch.likelihoods import MultitaskGaussianLikelihood
 import mofapy2.core.gp_utils as gp_utils
+from mofapy2.core.nodes.variational_nodes import *
+from mofapy2.core.nodes.Kc_node import Kc_Node
+from mofapy2.core.nodes.Kg_node import Kg_Node
+from mofapy2.core.gp_utils import *
+from mofapy2.core import gpu_utils
 
 
 # TODO:

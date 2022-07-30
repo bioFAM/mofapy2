@@ -93,9 +93,9 @@ class Constant_Node(Node):
         self.dim = dim
         if isinstance(value,(int,float)):
             if config.use_float32:
-                self.value = value * s.ones(dim, dtype=np.float32)
+                self.value = value * np.ones(dim, dtype=np.float32)
             else:
-                self.value = value * s.ones(dim, dtype=np.float64)
+                self.value = value * np.ones(dim, dtype=np.float64)
         else:
             assert value.shape == dim, "dimensionality mismatch"
             self.value = value

@@ -1,3 +1,4 @@
+import numpy as np
 import scipy as s
 from .basic_distributions import Distribution
 from .bernoulli import Bernoulli

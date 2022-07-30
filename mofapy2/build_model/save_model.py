@@ -100,28 +100,30 @@ class saveModel():
     def saveNames(self):
         """ Method to save sample and feature names"""
 
+        dt = h5py.string_dtype(encoding='utf-8')
+        
         # Save group names
         groups_grp = self.hdf5.create_group("groups")
-        groups_grp.create_dataset("groups", data=np.array(self.groups_names, dtype='S50'))        
+        groups_grp.create_dataset("groups", data=np.array(self.groups_names, dtype=dt))        
 
         # Save views names
         views_grp = self.hdf5.create_group("views")
-        views_grp.create_dataset("views", data=np.array(self.views_names, dtype='S50'))
+        views_grp.create_dataset("views", data=np.array(self.views_names, dtype=dt))
 
         # Save samples names
         samples_grp = self.hdf5.create_group("samples")
         for g in range(len(self.groups_names)):
-            samples_grp.create_dataset(self.groups_names[g], data=np.array(self.samples_names[g], dtype='S50'))
+            samples_grp.create_dataset(self.groups_names[g], data=np.array(self.samples_names[g], dtype=dt))
 
         # Save feature names
         features_grp = self.hdf5.create_group("features")
         for m in range(len(self.data)):
-            features_grp.create_dataset(self.views_names[m], data=np.array(self.features_names[m], dtype='S50'))
+            features_grp.create_dataset(self.views_names[m], data=np.array(self.features_names[m], dtype=dt))
 
         # Save covariate names
         if not self.covariates_names is None:
             covariates_grp = self.hdf5.create_group("covariates")
-            covariates_grp.create_dataset("covariates", data=np.array(self.covariates_names, dtype='S50'))
+            covariates_grp.create_dataset("covariates", data=np.array(self.covariates_names, dtype=dt))
 
     def saveMetaData(self):
         """ Method to save samples and features metadata """
@@ -455,10 +457,6 @@ class saveModel():
 
     def saveTrainOptions(self):
         """ Method to save the training options """
-
-        # TO-DO:
-        # Currently only numeric options can be saved due to compatibility problems between hdf5 and strings
-        # For more information see: https://github.com/h5py/h5py/pull/1032 or https://github.com/h5py/h5py/issues/289
 
         # Subset training options
         opts = dict((k, self.train_opts[k]) for k in ["maxiter", "freqELBO", "start_elbo", "gpu_mode", "stochastic", "seed"])

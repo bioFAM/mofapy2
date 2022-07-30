@@ -294,7 +294,7 @@ class Tau_Jaakkola(Node):
         Node.__init__(self, dim=dim)
 
         if isinstance(value,(int,float)):
-            self.value = value * s.ones(dim)
+            self.value = value * np.ones(dim)
         else:
             assert value.shape == dim, "Dimensionality mismatch"
             self.value = value

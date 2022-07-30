@@ -747,7 +747,7 @@ class entry_point(object):
         if seed is None:  # Seed for the random number generator
             seed = int(round(time()*1000)%1e6)
         self.train_opts['seed'] = int(seed)
-        # s.random.seed(self.train_opts['seed'])
+        # np.random.seed(self.train_opts['seed'])
 
         # Weight the views to avoid imbalance problems?
         self.train_opts['weight_views'] = weight_views

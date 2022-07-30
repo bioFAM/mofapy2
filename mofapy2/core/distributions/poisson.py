@@ -1,3 +1,4 @@
+import numpy as np
 import scipy as s
 import scipy.stats as stats
 from .basic_distributions import Distribution
@@ -19,14 +20,14 @@ class Poisson(Distribution):
         Distribution.__init__(self, dim)
 
         # Initialise parameters
-        theta = s.ones(dim) * theta
+        theta = np.ones(dim) * theta
         self.params = { 'theta':theta }
 
         # Initialise expectations
         if E is None:
             self.updateExpectations()
         else:
-            self.expectations = { 'E':s.ones(dim)*E }
+            self.expectations = { 'E':np.ones(dim)*E }
 
         # Check that dimensionalities match
         self.CheckDimensionalities()

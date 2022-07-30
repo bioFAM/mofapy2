@@ -1,8 +1,8 @@
 from __future__ import division
-import numpy as np
 from mofapy2.core import gpu_utils
 from mofapy2.core.distributions import *
 import scipy as s
+import numpy as np
 
 # Import manually defined functions
 from .variational_nodes import MultivariateGaussian_Unobserved_Variational_Node
@@ -92,8 +92,8 @@ class Z_GP_Node_mv(MultivariateGaussian_Unobserved_Variational_Node):
             weights = weights / weights.sum() * M
 
         # Precompute terms to speed up GPU computation
-        foo = gpu_utils.array(s.zeros((N,K)))
-        precomputed_bar = gpu_utils.array(s.zeros((N,K)))
+        foo = gpu_utils.array(np.zeros((N,K)))
+        precomputed_bar = gpu_utils.array(np.zeros((N,K)))
         for m in range(M):
             tau_gpu = gpu_utils.array(tau[m])
             foo += weights[m] * gpu_utils.dot(tau_gpu, gpu_utils.array(W[m]["E2"]))
@@ -104,7 +104,7 @@ class Z_GP_Node_mv(MultivariateGaussian_Unobserved_Variational_Node):
 
         # Calculate variational updates
         for k in range(K):
-            bar = gpu_utils.array(s.zeros((N,)))
+            bar = gpu_utils.array(np.zeros((N,)))
             tmp_cp1 = gpu_utils.array(Qmean[:, s.arange(K) != k])
             for m in range(M):
                 tmp_cp2 = gpu_utils.array(W[m]["E"][:, s.arange(K) != k].T)
@@ -196,6 +196,6 @@ class Z_GP_Node_mv(MultivariateGaussian_Unobserved_Variational_Node):
     #     else:
     #         cov = self.P.params['cov']
     #
-    #     samp_tmp = [s.random.multivariate_normal(mu[:,i], cov[i,:,:]) for i in range(self.dim[1])]
+    #     samp_tmp = [np.random.multivariate_normal(mu[:,i], cov[i,:,:]) for i in range(self.dim[1])]
     #     self.samp = s.array([tmp-tmp.mean() for tmp in samp_tmp]).transpose()
     #     return self.samp

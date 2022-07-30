@@ -107,7 +107,7 @@ def get_l_grid(X, n_grid = 5, idx = None):
 #     https://limix.readthedocs.io/en/stable/api/limix.qc.normalise_covariance.html)
 #     """
 #     n = C.shape[0]
-#     P = s.eye(n) - s.ones((n,n))/float(n) # Gower’s centering matrix
+#     P = s.eye(n) - np.ones((n,n))/float(n) # Gower’s centering matrix
 #     CP = C - C.mean(0)[:, s.newaxis]
 #     trPCP = s.sum(P * CP) # trace of doubly centered covariance matrix
 #     r = (n-1) / trPCP
@@ -135,13 +135,13 @@ def set_inducing_points(data, sample_cov, groups, dims, n_inducing, random = Fal
     n_inducing = min(n_inducing, N_nonmissing)
     if random:
         if not seed_inducing is None:
-            s.random.seed(int(seed_inducing))
+            np.random.seed(int(seed_inducing))
         idx_inducing = np.random.choice(dims["N"], n_inducing, replace = False)
         idx_inducing.sort()
     else:
         N = dims["N"]
         loc = sample_cov.sum(axis = 1)
-        nonmissing_samples_tiesshuffled = nonmissing_samples[np.lexsort((np.random.random(N_nonmissing), loc[nonmissing_samples]))] # shuffle ties randomly (e.g. between groups)
+        nonmissing_samples_tiesshuffled = nonmissing_samples[np.lexsort((np.random.random(N_nonmissing), loc[nonmissing_samples]))] # shuffle tienp.randomly (e.g. between groups)
         grid_ix = np.floor(np.arange(0, N_nonmissing, step=N_nonmissing / n_inducing)).astype('int')
         if grid_ix[-1] == N_nonmissing: # avoid out of bound
             grid_ix = grid_ix[:-1]

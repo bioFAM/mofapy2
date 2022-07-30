@@ -14,6 +14,7 @@ All multiview nodes have the following main attributes:
 """
 
 import scipy as s
+import numpy as np
 
 from .basic_nodes import Node
 from .variational_nodes import Variational_Node

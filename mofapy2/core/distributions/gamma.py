@@ -23,16 +23,16 @@ class Gamma(Distribution):
 
         # Initialise parameters
         if isinstance(a, (int, float)):
-            a = s.ones(dim) * a
+            a = np.ones(dim) * a
         if isinstance(b, (int, float)):
-            b = s.ones(dim) * b
+            b = np.ones(dim) * b
         self.params = { 'a':a, 'b':b }
 
         # Initialise expectations
         if (E is None) or (lnE is None):
             self.updateExpectations()
         else:
-            self.expectations = { 'E':s.ones(dim)*E, 'lnE':s.ones(dim)*lnE }
+            self.expectations = { 'E':np.ones(dim)*E, 'lnE':np.ones(dim)*lnE }
 
         # float64 -> float32
         if config.use_float32: self.to_float32()

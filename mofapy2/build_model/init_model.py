@@ -26,7 +26,7 @@ class initModel(object):
         """
 
         # Set seed
-        s.random.seed(seed)
+        np.random.seed(seed)
 
         # Set groups
         assert len(groups) == dim["N"], 'sample groups labels do not match number of samples'
@@ -73,12 +73,12 @@ class initModel(object):
         ## Initialise prior distribution (P)
 
         # mean
-        pmean = s.ones((self.N, self.K)) * pmean
+        pmean = np.ones((self.N, self.K)) * pmean
 
         ## Initialise variational distribution (Q)
 
         # variance
-        qvar = s.ones((self.N, self.K)) * qvar
+        qvar = np.ones((self.N, self.K)) * qvar
 
         # mean
         if qmean is not None:
@@ -115,7 +115,7 @@ class initModel(object):
                 assert qmean.shape == (self.N, self.K), "Wrong shape for the expectation of the Q distribution of Z"
 
             elif isinstance(qmean, (int, float)):
-                qmean = s.ones((self.N, self.K)) * qmean
+                qmean = np.ones((self.N, self.K)) * qmean
 
             else:
                 print("Wrong initialisation for Z")
@@ -152,7 +152,7 @@ class initModel(object):
         ## Initialise prior distribution (P)
 
         # mean
-        pmean = s.ones((self.N, self.K)) * pmean
+        pmean = np.ones((self.N, self.K)) * pmean
         if isinstance(pvar, (int,float)):
             pvar = s.array([s.eye(self.N)*pvar for k in range(self.K)])
 
@@ -196,7 +196,7 @@ class initModel(object):
                 assert qmean.shape == (self.N, self.K), "Wrong shape for the expectation of the Q distribution of Z"
 
             elif isinstance(qmean, (int, float)):
-                qmean = s.ones((self.N, self.K)) * qmean
+                qmean = np.ones((self.N, self.K)) * qmean
 
             else:
                 print("Wrong initialisation for Z")
@@ -244,12 +244,12 @@ class initModel(object):
 
         ## Initialise prior distribution (P)
         # mean
-        pmean = s.ones((Nu, self.K)) * pmean
+        pmean = np.ones((Nu, self.K)) * pmean
         if isinstance(pvar, (int, float)):
             pvar = s.array([s.eye(Nu) * pvar for k in range(self.K)])
 
         ## Initialise variational distribution (Q)
-        qmean = s.ones((Nu, self.K)) * qmean
+        qmean = np.ones((Nu, self.K)) * qmean
 
         # variance
         qvar = s.array([s.eye(Nu) * qvar for k in range(self.K)])
@@ -270,12 +270,12 @@ class initModel(object):
         ## Initialise prior distribution (P)
 
         # mean
-        pmean = s.ones((self.N, self.K)) * pmean
+        pmean = np.ones((self.N, self.K)) * pmean
 
         ## Initialise variational distribution (Q)
 
         # variance
-        qvar = s.ones((self.N, self.K)) * qvar
+        qvar = np.ones((self.N, self.K)) * qvar
 
         # mean
         if qmean is not None:
@@ -313,7 +313,7 @@ class initModel(object):
                 assert qmean.shape == (self.N, self.K), "Wrong shape for the expectation of the Q distribution of Z"
 
             elif isinstance(qmean, (int, float)):
-                qmean = s.ones((self.N, self.K)) * qmean
+                qmean = np.ones((self.N, self.K)) * qmean
 
             else:
                 print("Wrong initialisation for Z")
@@ -417,7 +417,7 @@ class initModel(object):
             assert qmean_T1.shape == (self.N, self.K), "Wrong dimensionality"
 
         elif isinstance(qmean_T1, (int, float)):
-            qmean_T1 *= s.ones((self.N, self.K))
+            qmean_T1 *= np.ones((self.N, self.K))
 
         else:
             print("Wrong initialisation for Z")
@@ -458,12 +458,12 @@ class initModel(object):
             ## Initialise prior distribution (P) ##
 
             # mean
-            pmean_m = s.ones((self.D[m], self.K)) * pmean
+            pmean_m = np.ones((self.D[m], self.K)) * pmean
 
             ## Initialise variational distribution (Q) ##
 
             # variance
-            qvar_m = s.ones((self.D[m], self.K)) * qvar
+            qvar_m = np.ones((self.D[m], self.K)) * qvar
 
             # mean
             if qmean is not None:
@@ -485,7 +485,7 @@ class initModel(object):
                     qmean_m = qmean
 
                 elif isinstance(qmean, (int, float)):
-                    qmean_m = s.ones((self.D[m], self.K)) * qmean
+                    qmean_m = np.ones((self.D[m], self.K)) * qmean
 
                 else:
                     print("Wrong initialisation for W")
@@ -550,7 +550,7 @@ class initModel(object):
                 assert qmean_S1.shape == (self.D[m],self.K), "Wrong dimensionality"
 
             elif isinstance(qmean_S1,(int,float)):
-                qmean_S1_tmp = s.ones((self.D[m],self.K)) * qmean_S1
+                qmean_S1_tmp = np.ones((self.D[m],self.K)) * qmean_S1
 
             else:
                 print("Wrong initialisation for W")
@@ -651,7 +651,7 @@ class initModel(object):
 
             # Bernoulli noise model for binary data
             elif self.lik[m] == "bernoulli":
-                # tau_list[m] = Constant_Node(dim=(self.D[m],), value=s.ones(self.D[m])*0.25)
+                # tau_list[m] = Constant_Node(dim=(self.D[m],), value=np.ones(self.D[m])*0.25)
                 # tau_list[m] = Tau_Jaakkola(dim=(self.D[m],), value=0.25)
                 tau_list[m] = Tau_Jaakkola(dim=((self.N, self.D[m])), value=1.)
 

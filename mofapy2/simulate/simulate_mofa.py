@@ -105,10 +105,10 @@ def simulate_data(N=200, seed=1234567, views = ["0", "1", "2", "3"], D = [500, 2
     if alpha is None:
         inactive = 1000
         active = 1
-        alpha_tmp = [s.ones(M) * inactive]*K
+        alpha_tmp = [np.ones(M) * inactive]*K
         for k in range(K):
             while s.all(alpha_tmp[k]==inactive):
-                alpha_tmp[k] = s.random.choice([active,inactive], size=M, replace=True)
+                alpha_tmp[k] = np.random.choice([active,inactive], size=M, replace=True)
         alpha = [ s.array(alpha_tmp)[:,m] for m in range(M) ]
     else:
         assert len(alpha) == M

@@ -22,8 +22,8 @@ class UnivariateGaussian(Distribution):
         Distribution.__init__(self, dim)
 
         # Initialise parameters
-        mean = s.ones(dim) * mean
-        var = s.ones(dim) * var
+        mean = np.ones(dim) * mean
+        var = np.ones(dim) * var
         self.params = { 'mean':mean, 'var':var }
 
         # Initialise expectations
@@ -31,10 +31,10 @@ class UnivariateGaussian(Distribution):
         if E is None:
             self.updateExpectations()
         else:
-            self.expectations['E'] = s.ones(dim)*E
+            self.expectations['E'] = np.ones(dim)*E
 
         if E2 is not None:
-            self.expectations['E2'] = s.ones(dim)*E2
+            self.expectations['E2'] = np.ones(dim)*E2
 
         # float64 -> float32
         if config.use_float32: self.to_float32()
@@ -62,4 +62,4 @@ class UnivariateGaussian(Distribution):
         return s.sum( 0.5*s.log(self.params['var']) + 0.5*(1+s.log(2*s.pi)) )
 
     def sample(self):
-        return s.random.normal(self.params['mean'], np.sqrt(self.params['var']))
+        return np.random.normal(self.params['mean'], np.sqrt(self.params['var']))

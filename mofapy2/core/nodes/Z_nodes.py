@@ -110,8 +110,8 @@ class Z_Node(UnivariateGaussian_Unobserved_Variational_Node):
             # weights = [(total_w-Y[m].shape[1])/total_w * M / (M-1) for m in range(M)]
 
         # Precompute terms to speed up GPU computation
-        foo = gpu_utils.array(s.zeros((N,K)))
-        precomputed_bar = gpu_utils.array(s.zeros((N,K)))
+        foo = gpu_utils.array(np.zeros((N,K)))
+        precomputed_bar = gpu_utils.array(np.zeros((N,K)))
         for m in range(M):
             tau_gpu = gpu_utils.array(tau[m])
             foo += weights[m] * gpu_utils.dot(tau_gpu, gpu_utils.array(W[m]["E2"]))
@@ -122,7 +122,7 @@ class Z_Node(UnivariateGaussian_Unobserved_Variational_Node):
 
         # Calculate variational updates
         for k in range(K):
-            bar = gpu_utils.array(s.zeros((N,)))
+            bar = gpu_utils.array(np.zeros((N,)))
             tmp_cp1 = gpu_utils.array(Qmean[:, s.arange(K) != k])
             for m in range(M):
                 tmp_cp2 = gpu_utils.array(W[m]["E"][:, s.arange(K) != k].T)
@@ -151,7 +151,7 @@ class Z_Node(UnivariateGaussian_Unobserved_Variational_Node):
             PE, PE2 = self.markov_blanket['MuZ'].getExpectations()['E'], \
                       self.markov_blanket['MuZ'].getExpectations()['E2']
         else:
-            PE, PE2 = self.P.getParameters()["mean"], s.zeros((self.dim[0], self.dim[1]))
+            PE, PE2 = self.P.getParameters()["mean"], np.zeros((self.dim[0], self.dim[1]))
 
         if 'AlphaZ' in self.markov_blanket:
             Alpha = self.markov_blanket['AlphaZ'].getExpectations(expand=True)
@@ -265,7 +265,7 @@ class SZ_Node(BernoulliGaussian_Unobserved_Variational_Node):
             self.mini_batch['ENN'] = par_up['theta'] * (s.square(par_up['mean_B1']) + par_up['var_B1']) + \
                                      (1-par_up['theta']) * Q['var_B0'][ix, :]
 
-        # self.Q.setParameters(mean_B0=s.zeros((self.dim[0], self.dim[1])), var_B0=Q['var_B0'],
+        # self.Q.setParameters(mean_B0=np.zeros((self.dim[0], self.dim[1])), var_B0=Q['var_B0'],
         #                      mean_B1=Q['mean_B1'], var_B1=Q['var_B1'], theta=Q['theta'])  # NOTE should not be necessary but safer to keep for now
     def _updateParameters(self, Y, W, tau, mask, Alpha, Qmean_T1, Qvar_T1, Qtheta, SZ, theta_lnE, theta_lnEInv):
         """ Hidden method to compute parameter updates """
@@ -300,9 +300,9 @@ class SZ_Node(BernoulliGaussian_Unobserved_Variational_Node):
         #         term4_tmp3[k] += gpu_utils.dot(tau_gpu, WWk_gpu)
         # del tau_gpu, Y_gpu, Wk_gpu, WWk_gpu
 
-        term4_tmp1 = gpu_utils.array( s.zeros((N,K))+Alpha )
-        term4_tmp2 = gpu_utils.array( s.zeros((N,K))+Alpha )
-        term4_tmp3 = gpu_utils.array( s.zeros((N,K))+Alpha ) 
+        term4_tmp1 = gpu_utils.array( np.zeros((N,K))+Alpha )
+        term4_tmp2 = gpu_utils.array( np.zeros((N,K))+Alpha )
+        term4_tmp3 = gpu_utils.array( np.zeros((N,K))+Alpha ) 
 
         for m in range(M):
             tau_gpu = gpu_utils.array(tau[m])

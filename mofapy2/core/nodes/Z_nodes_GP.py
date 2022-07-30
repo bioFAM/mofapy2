@@ -1,8 +1,8 @@
 from __future__ import division
-import numpy as np
 from mofapy2.core import gpu_utils
 from mofapy2.core.distributions import *
 import scipy as s
+import numpy as np
 
 # Import manually defined functions
 from .variational_nodes import UnivariateGaussian_Unobserved_Variational_Node_with_MultivariateGaussian_Prior
@@ -65,7 +65,7 @@ class Z_GP_Node(UnivariateGaussian_Unobserved_Variational_Node_with_Multivariate
         if "AlphaZ" in self.markov_blanket:
             Alpha = self.markov_blanket['AlphaZ'].get_mini_batch()
         else:
-            Alpha = s.ones((self.N, self.K)) * 1.
+            Alpha = np.ones((self.N, self.K)) * 1.
             if ix is not None: Alpha = Alpha[ix,:]
 
         if "Sigma" in self.markov_blanket:
@@ -122,8 +122,8 @@ class Z_GP_Node(UnivariateGaussian_Unobserved_Variational_Node_with_Multivariate
             weights = weights / weights.sum() * M
 
         # Precompute terms to speed up GPU computation
-        foo = gpu_utils.array(s.zeros((N,K)))
-        precomputed_bar = gpu_utils.array(s.zeros((N,K)))
+        foo = gpu_utils.array(np.zeros((N,K)))
+        precomputed_bar = gpu_utils.array(np.zeros((N,K)))
         for m in range(M):
             tau_gpu = gpu_utils.array(tau[m])
             foo += weights[m] * gpu_utils.dot(tau_gpu, gpu_utils.array(W[m]["E2"]))
@@ -134,7 +134,7 @@ class Z_GP_Node(UnivariateGaussian_Unobserved_Variational_Node_with_Multivariate
 
         # Calculate variational updates
         for k in range(K):
-            bar = gpu_utils.array(s.zeros((N,)))
+            bar = gpu_utils.array(np.zeros((N,)))
             tmp_cp1 = gpu_utils.array(Qmean[:, s.arange(K) != k])
             for m in range(M):
                 tmp_cp2 = gpu_utils.array(W[m]["E"][:, s.arange(K) != k].T)
@@ -150,7 +150,7 @@ class Z_GP_Node(UnivariateGaussian_Unobserved_Variational_Node_with_Multivariate
             scaled_inv_with_zerodiag = gpu_utils.dot(gpu_utils.dot(np.diag(np.sqrt(Alpha[:, k])), p_cov_inv_k_with_zerodiag),np.diag(np.sqrt(Alpha[:, k])))
 
             Qvar[:, k] = 1. / (Alpha[:, k] * p_cov_inv_diag[k, :].transpose() + foo[:,k])
-            Qmean[:, k] = Qvar[:, k] * (bar - scaled_inv_with_zerodiag.dot(Qmean[:,k])) # can take all samples here as zeros on diagonal
+            Qmean[:, k] = Qvar[:, k] * (bar - scaled_inv_with_zerodiag.dot(Qmean[:,k])) # can take all samples here anp.zeros on diagonal
 
         # Save updated parameters of the Q distribution
         return {'Qmean': Qmean, 'Qvar':Qvar}
@@ -179,8 +179,8 @@ class Z_GP_Node(UnivariateGaussian_Unobserved_Variational_Node_with_Multivariate
             Alpha = self.markov_blanket['AlphaZ'].getExpectations(expand=True)
         else:
             Alpha = dict()
-            Alpha['E'] =  s.ones((self.N, self.K)) * 1.
-            Alpha['lnE'] = s.zeros((self.N, self.K))
+            Alpha['E'] =  np.ones((self.N, self.K)) * 1.
+            Alpha['lnE'] = np.zeros((self.N, self.K))
 
         # compute term from the exponential in the Gaussian
         p_cov_inv_k_with_zerodiag = p_cov_inv[k,:,:] - p_cov_inv_diag[k,:] * s.eye(self.N)
@@ -215,6 +215,6 @@ class Z_GP_Node(UnivariateGaussian_Unobserved_Variational_Node_with_Multivariate
         else:
             cov = self.P.params['cov']
 
-        samp_tmp = [s.random.multivariate_normal(mu[:,i], cov[i,:,:]) for i in range(self.dim[1])]
+        samp_tmp = [np.random.multivariate_normal(mu[:,i], cov[i,:,:]) for i in range(self.dim[1])]
         self.samp = s.array([tmp-tmp.mean() for tmp in samp_tmp]).transpose()
         return self.samp

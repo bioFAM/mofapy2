@@ -1,8 +1,8 @@
+import numpy as np
 import scipy as s
 import numpy.linalg as linalg
 import scipy.stats as stats
 import sys
-import numpy as np
 from .basic_distributions import Distribution
 
 from mofapy2.core.utils import *
@@ -56,11 +56,11 @@ class MultivariateGaussian(Distribution):
 
         ### Initialise the mean
         # If 'mean' is a scalar, broadcast it to all dimensions
-        if isinstance(mean,(int,float)): mean = s.ones( (dim[0],dim[1]) ) * mean
+        if isinstance(mean,(int,float)): mean = np.ones( (dim[0],dim[1]) ) * mean
         
         # If 'mean' has dim (D,) and we have N distributions, repeat it to all N distributions (for axis_cov=1) and correspondingly for axis_cov=0
-        if len(mean.shape)==1 and mean.shape[0]==dim[1] and axis_cov==1: mean = mean * s.ones( (dim[0],dim[1]) ) 
-        if len(mean.shape)==1 and mean.shape[0]==dim[0] and axis_cov==0: mean = (mean * s.ones( (dim[1],dim[0]) )).transpose()
+        if len(mean.shape)==1 and mean.shape[0]==dim[1] and axis_cov==1: mean = mean * np.ones( (dim[0],dim[1]) ) 
+        if len(mean.shape)==1 and mean.shape[0]==dim[0] and axis_cov==0: mean = (mean * np.ones( (dim[1],dim[0]) )).transpose()
         
         # check 'mean' has the right dimensions
         assert mean.shape[0]==dim[0] and mean.shape[1]==dim[1], "The given mean could not be broadcasted into a matrix with shape (N,D) "
@@ -168,12 +168,12 @@ class MultivariateGaussian(Distribution):
         if axis_cov==1:
             samples = []
             for n in range(self.dim[0]):
-                samples.append(s.random.multivariate_normal(self.params['mean'][n,:], self.params['cov'][n]))
+                samples.append(np.random.multivariate_normal(self.params['mean'][n,:], self.params['cov'][n]))
             samples = np.array(samples)
         else:
             samples = []
             for d in range(self.dim[1]):
-                samples.append(s.random.multivariate_normal(self.params['mean'][:,d], self.params['cov'][d]))
+                samples.append(np.random.multivariate_normal(self.params['mean'][:,d], self.params['cov'][d]))
             samples = np.array(samples).T
         return samples
 
@@ -204,17 +204,17 @@ class MultivariateGaussian_reparam(Distribution):
                     axis_cov == 1)), "Error : axis_cov is the index of the dimension (N, D) for the covariance matrix, either 0 (N,N) or 1 (D,D)"
 
         # Broadcast scalars to arrays for alpha and lambda
-        if isinstance(alpha, (int, float)): alpha = s.ones((dim[0], dim[1])) * alpha
-        if isinstance(lamb, (int, float)): lamb = s.ones((dim[0], dim[1])) * lamb
+        if isinstance(alpha, (int, float)): alpha = np.ones((dim[0], dim[1])) * alpha
+        if isinstance(lamb, (int, float)): lamb = np.ones((dim[0], dim[1])) * lamb
 
         # If 'alpha' has dim (D,) and we have N distributions, repeat it to all N distributions (for axis_cov=1) and correspondingly for axis_cov=0
-        if len(alpha.shape) == 1 and alpha.shape[0] == dim[1] and axis_cov == 1: alpha = alpha * s.ones((dim[0], dim[1]))
+        if len(alpha.shape) == 1 and alpha.shape[0] == dim[1] and axis_cov == 1: alpha = alpha * np.ones((dim[0], dim[1]))
         if len(alpha.shape) == 1 and alpha.shape[0] == dim[0] and axis_cov == 0: alpha = (
-                    alpha * s.ones((dim[1], dim[0]))).transpose()
-        if len(lamb.shape) == 1 and lamb.shape[0] == dim[1] and axis_cov == 1: lamb = lamb * s.ones(
+                    alpha * np.ones((dim[1], dim[0]))).transpose()
+        if len(lamb.shape) == 1 and lamb.shape[0] == dim[1] and axis_cov == 1: lamb = lamb * np.ones(
             (dim[0], dim[1]))
         if len(lamb.shape) == 1 and lamb.shape[0] == dim[0] and axis_cov == 0: lamb = (
-                lamb * s.ones((dim[1], dim[0]))).transpose()
+                lamb * np.ones((dim[1], dim[0]))).transpose()
 
         # Check dimensions of alpha and lamb are correct
         assert alpha.shape[0] == dim[0] and alpha.shape[1] == dim[1], "The given alpha could not be broadcasted into a matrix with shape (N,D) "

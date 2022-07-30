@@ -120,9 +120,9 @@ class BayesNet(object):
         unique_groups = unique_groups[np.argsort(idx)]
 
         if total:
-            r2 = [ s.zeros(self.dim['M']) for g in range(self.dim['G'])]
+            r2 = [ np.zeros(self.dim['M']) for g in range(self.dim['G'])]
         else:
-            r2 = [ s.zeros([self.dim['M'], self.dim['K']])  for g in range(self.dim['G'])]
+            r2 = [ np.zeros([self.dim['M'], self.dim['K']])  for g in range(self.dim['G'])]
 
         for m in range(self.dim['M']):
             mask = self.nodes["Y"].getNodes()[m].getMask(full=True)
@@ -163,7 +163,7 @@ class BayesNet(object):
             tmp = [ s.where( (r2[g]>min_r2).sum(axis=0) == 0)[0] for g in range(self.dim['G']) ]
             drop_dic["min_r2"] = list(set.intersection(*map(set,tmp)))
             if len(drop_dic["min_r2"]) > 0:
-                drop_dic["min_r2"] = [ s.random.choice(drop_dic["min_r2"]) ]
+                drop_dic["min_r2"] = [ np.random.choice(drop_dic["min_r2"]) ]
 
         # Drop the factors
         drop = s.unique(s.concatenate(list(drop_dic.values())))
@@ -324,7 +324,7 @@ class BayesNet(object):
 
         # Correlation between factors
         Z = self.nodes["Z"].getExpectation()
-        Z += s.random.normal(s.zeros(Z.shape),1e-10)
+        Z += np.random.normal(np.zeros(Z.shape),1e-10)
         r = s.absolute(corr(Z.T,Z.T)); s.fill_diagonal(r,0)
         print("- Maximum correlation between factors: %.2f" % (s.nanmax(r)))
 
@@ -406,7 +406,7 @@ class BayesNet(object):
             
 
         if len(nodes) == 0: nodes = self.getVariationalNodes().keys()
-        elbo = pd.Series(s.zeros(len(nodes)+1), index=list(nodes)+["total"])
+        elbo = pd.Series(np.zeros(len(nodes)+1), index=list(nodes)+["total"])
         for node in nodes:
             if isinstance(self.nodes[node], Multiview_Variational_Node):
                 elbo[node] = float(self.nodes[node].calculateELBO(weights = weights))
@@ -431,7 +431,7 @@ class StochasticBayesNet(BayesNet):
     def sample_mini_batch(self):
         """ Method to define mini batches"""
         S = int( self.options['batch_size'] * self.dim['N'] )
-        ix = s.random.choice(range(self.dim['N']), size=S, replace=False)
+        ix = np.random.choice(range(self.dim['N']), size=S, replace=False)
         self.define_mini_batch(ix)
         return ix
 
@@ -448,7 +448,7 @@ class StochasticBayesNet(BayesNet):
         if batch_ix == 0:
             print("\n## Epoch %s ##" % str(epoch+1))
             print("-------------------------------------------------------------------------------------------")
-            self.shuffled_ix = s.random.choice(range(self.dim['N']), size=self.dim['N'], replace=False)
+            self.shuffled_ix = np.random.choice(range(self.dim['N']), size=self.dim['N'], replace=False)
 
         min = int(S * batch_ix)
         max = int(S * (batch_ix + 1))

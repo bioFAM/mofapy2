@@ -1,3 +1,4 @@
+import numpy as np
 import scipy as s
 from .basic_distributions import Distribution
 
@@ -15,14 +16,14 @@ class Bernoulli(Distribution):
         Distribution.__init__(self, dim)
 
         # Initialise parameters
-        theta = s.ones(dim) * theta
+        theta = np.ones(dim) * theta
         self.params = { 'theta':theta }
 
         # Initialise expectations
         if E is None:
             self.updateExpectations()
         else:
-            self.expectations = { 'E':s.ones(dim)*E }
+            self.expectations = { 'E':np.ones(dim)*E }
 
         # float64 -> float32
         if config.use_float32: self.to_float32()
@@ -43,4 +44,4 @@ class Bernoulli(Distribution):
         return s.sum( x*s.log(self.params['theta']) + (1-x)*s.log(1-self.params['theta']) )
 
     def sample(self):
-        return s.random.binomial(1, self.params['theta'])
+        return np.random.binomial(1, self.params['theta'])

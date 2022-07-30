@@ -1,6 +1,7 @@
 
 from __future__ import division
 import scipy as s
+import numpy as np
 
 from .basic_nodes import *
 from mofapy2.core.distributions import *
