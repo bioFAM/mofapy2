@@ -162,10 +162,10 @@ def mask_samples(sim, perc = 0.2, perc_all_views = 0):
             data[m][g][masked_samples[m][g],:] = s.nan
 
     if perc_all_views > 0:
-        masked_samplenp.all_views = [np.random.choice(N, math.floor(N * perc_all_views), replace = False) for g in range(G)]
+        masked_samples.all_views = [np.random.choice(N, math.floor(N * perc_all_views), replace = False) for g in range(G)]
         for m in range(len(data)):
             for g in range(G):
-                data[m][g][masked_samplenp.all_views[g], :] = s.nan
+                data[m][g][masked_samples.all_views[g], :] = s.nan
 
 
     return data
