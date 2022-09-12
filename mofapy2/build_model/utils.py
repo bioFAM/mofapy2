@@ -11,8 +11,9 @@ import h5py
 
 from mofapy2.core.nodes import *
 
+
 def mask_data(data, mask_fraction):
-    """ Method to mask data values, mainly used to evaluate imputation
+    """Method to mask data values, mainly used to evaluate imputation
 
     PARAMETERS
     ----------
@@ -23,30 +24,33 @@ def mask_data(data, mask_fraction):
     D = data.shape[1]
     N = data.shape[0]
 
-    mask = np.ones(N*D)
-    mask[:int(round(N*D*mask_fraction))] = np.nan
+    mask = np.ones(N * D)
+    mask[: int(round(N * D * mask_fraction))] = np.nan
     np.random.shuffle(mask)
     mask = np.reshape(mask, [N, D])
     data *= mask
 
     return data
 
+
 def _gaussianise_vec(vec):
     # take ranks and scale to uniform
-    vec = s.stats.rankdata(vec, 'dense').astype(float)
-    vec /= (vec.max()+1.)
+    vec = s.stats.rankdata(vec, "dense").astype(float)
+    vec /= vec.max() + 1.0
 
     # transform uniform to gaussian using probit
-    vec_norm = np.sqrt(2.) * s.special.erfinv(2.*vec-1.)  # TODO to double check
+    vec_norm = np.sqrt(2.0) * s.special.erfinv(2.0 * vec - 1.0)  # TODO to double check
     # phenotype_norm = np.reshape(phenotype_norm, [len(phenotype_norm), 1])
 
     return vec_norm
+
 
 def gaussianise(Y_m, axis=0):
     # double check axis for pandas
     Y_norm = Y_m.apply(_gaussianise_vec, axis)
 
     return Y_norm
+
 
 def process_data(data, likelihoods, data_opts, samples_groups):
 
@@ -57,37 +61,43 @@ def process_data(data, likelihoods, data_opts, samples_groups):
 
         # Removing features with no variance
         var = data[m].std(axis=0)
-        if np.any(var==0.):
-            print("Warning: %d features(s) in view %d have zero variance, consider removing them before training the model...\n" % ((var==0.).sum(), m))
+        if np.any(var == 0.0):
+            print(
+                "Warning: %d features(s) in view %d have zero variance, consider removing them before training the model...\n"
+                % ((var == 0.0).sum(), m)
+            )
             sys.stdout.flush()
 
         # Check that there are no features full of missing values
         tmp = np.isnan(data[m]).mean(axis=0)
-        if np.any(tmp==1.):
-            print("Warning: %d features(s) in view %d are full of missing values, please consider removing them before training the model...\n" % ((tmp==0.).sum(), m))
+        if np.any(tmp == 1.0):
+            print(
+                "Warning: %d features(s) in view %d are full of missing values, please consider removing them before training the model...\n"
+                % ((tmp == 0.0).sum(), m)
+            )
             sys.stdout.flush()
-
 
         # Centering and scaling is only appropriate for gaussian data
         if likelihoods[m] in ["gaussian"]:
 
             # Center features per group
-            if data_opts['center_groups']:
-                for g in data_opts['groups_names']:
-                    filt = [gp==g for gp in samples_groups]
-                    data[m][filt,:] -= np.nanmean(data[m][filt,:],axis=0)
+            if data_opts["center_groups"]:
+                for g in data_opts["groups_names"]:
+                    filt = [gp == g for gp in samples_groups]
+                    data[m][filt, :] -= np.nanmean(data[m][filt, :], axis=0)
 
             # Scale views to unit variance
-            if data_opts['scale_views']:
+            if data_opts["scale_views"]:
                 data[m] /= np.nanstd(data[m])
 
             # Scale groups to unit variance
-            if data_opts['scale_groups']:
-                for g in data_opts['groups_names']:
-                    filt = [gp==g for gp in samples_groups]
-                    data[m][filt,:] /= np.nanstd(data[m][filt,:])
+            if data_opts["scale_groups"]:
+                for g in data_opts["groups_names"]:
+                    filt = [gp == g for gp in samples_groups]
+                    data[m][filt, :] /= np.nanstd(data[m][filt, :])
 
     return data
+
 
 def guess_likelihoods(data):
     """
@@ -99,10 +109,10 @@ def guess_likelihoods(data):
     likelihoods = ["gaussian" for m in range(M)]
     for m in range(M):
         mask = ~np.isnan(data[m])
-        if np.isin(data[m][mask],[0,1]).all():
+        if np.isin(data[m][mask], [0, 1]).all():
             likelihoods[m] = "bernoulli"
         else:
-            if np.all( (data[m][mask]%1)==0):
-                likelihoods[m] = "poisson"  
+            if np.all((data[m][mask] % 1) == 0):
+                likelihoods[m] = "poisson"
 
     return likelihoods

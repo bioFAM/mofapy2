@@ -1,5 +1,6 @@
 import sys
 import numpy as np
+
 try:
     import cupy as cp
 except ImportError:
@@ -19,11 +20,13 @@ def log(mat):
     else:
         return np.log(mat)
 
+
 def square(mat):
     if gpu_mode:
         return cp.square(mat)
     else:
         return np.square(mat)
+
 
 def exp(mat):
     if gpu_mode:
@@ -31,11 +34,13 @@ def exp(mat):
     else:
         return np.exp(mat)
 
+
 def sum(mat):
     if gpu_mode:
         return cp.sum(mat)
     else:
         return np.sum(mat)
+
 
 # --------------------------------------------------------
 # operations on matrices pairs
@@ -63,6 +68,7 @@ def zeros(dim):
     else:
         return np.zeros(dim)
 
+
 # --------------------------------------------------------
 # loading on and from the GPU
 # --------------------------------------------------------
@@ -71,6 +77,7 @@ def array(mat):
         return cp.array(mat)
     else:
         return mat
+
 
 def asnumpy(mat):
     if gpu_mode:
