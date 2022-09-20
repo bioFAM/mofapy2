@@ -1817,6 +1817,7 @@ def mofa(
     n_iterations: int = 1000,
     convergence_mode: str = "fast",
     gpu_mode: bool = False,
+    gpu_device: Optional[bool] = None,
     use_float32: bool = False,
     save_parameters: bool = False,
     save_data: bool = True,
@@ -1851,6 +1852,7 @@ def mofa(
     n_iterations (optional): upper limit on the number of iterations
     convergence_mode (optional): fast, medium, or slow convergence mode
     gpu_mode (optional): if to use GPU mode
+    gpu_mode (optional): which GPU to use
     use_float32 (optional): if to use float32 precision
     save_parameters (optional): if to save training parameters
     save_data (optional): if to save training data
@@ -1893,6 +1895,7 @@ def mofa(
         iter=n_iterations,
         convergence_mode=convergence_mode,
         gpu_mode=gpu_mode,
+        gpu_device=gpu_device,
         seed=seed,
         verbose=verbose,
         quiet=quiet,
