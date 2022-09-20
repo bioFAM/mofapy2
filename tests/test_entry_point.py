@@ -24,7 +24,7 @@ class TestBuildModel:
                 [np.random.random((n_g1, d_m2)), np.random.random((n_g2, d_m2))],
             ]
         )
-        
+
         ent.set_model_options()
         ent.set_train_options()
         ent.build()
