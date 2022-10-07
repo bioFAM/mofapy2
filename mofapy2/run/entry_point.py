@@ -911,7 +911,7 @@ class entry_point(object):
             self.smooth_opts['model_groups'] = False
         # self.smooth_opts['use_gpytorch'] = False # experimental, this could be passed as a model_option but to keep options uncluttered set to False
 
-    def set_model_options(self, factors=10, spikeslab_factors=False, spikeslab_weights=True, ard_factors=False, ard_weights=True):
+    def set_model_options(self, factors=10, spikeslab_factors=False, spikeslab_weights=False, ard_factors=False, ard_weights=True):
         """ Set model options """
 
         self.model_opts = {}
@@ -951,7 +951,7 @@ class entry_point(object):
           print("- View %d (%s): %s" % (m,self.data_opts["views_names"][m],self.likelihoods[m]) )
         print("\n")
 
-    def set_data_options(self, scale_views=False, scale_groups = False, center_groups = True, use_float32 = False):
+    def set_data_options(self, scale_views=False, scale_groups = False, center_groups = True, use_float32 = True):
         """ Set data processing options """
 
         if not hasattr(self, 'data_opts'): self.data_opts = {}
@@ -1292,9 +1292,9 @@ def mofa(adata, groups_label: bool = None, use_raw: bool = False, use_layer: boo
          likelihood: Optional[Union[str, List[str]]] = None, n_factors: int = 10,
          scale_views: bool = False, scale_groups: bool = False,
          ard_weights: bool = True, ard_factors: bool = True,
-         spikeslab_weights: bool = True, spikeslab_factors: bool = False,
+         spikeslab_weights: bool = False, spikeslab_factors: bool = False,
          n_iterations: int = 1000, convergence_mode: str = "fast",
-         gpu_mode: bool = False, use_float32: bool = False,
+         gpu_mode: bool = False, use_float32: bool = True,
          save_parameters: bool = False, save_data: bool = True, save_metadata: bool = True,
          seed: int = 1, outfile: Optional[str] = None,
          expectations: Optional[List[str]] = None,
