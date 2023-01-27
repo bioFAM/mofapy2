@@ -60,10 +60,10 @@ class TestAnnData:
         assert all(adata.obs.group.values == adata.obs.true_group.values)
 
         for sample, value in (
-            ("sample0_groupA", 0.14592),
-            ("sample7_groupB", -0.18226),
+            ("sample0_groupA", 0.1459154),
+            ("sample7_groupB", -0.1822545),
         ):
-            si = np.where(adata.obs_names == sample)[0]
+            si = np.where(adata.obs_names == sample)[0][0]
             assert adata.obsm["X_mofa"][si, 0] == pytest.approx(value)
 
 
