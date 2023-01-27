@@ -676,7 +676,7 @@ class saveModel:
 
         # Create data set: only numeric options
         self.hdf5.create_dataset(
-            "training_opts", data=np.array(list(opts.values()), dtype=np.float)
+            "training_opts", data=np.array(list(opts.values()), dtype=float)
         )
         self.hdf5["training_opts"].attrs["names"] = np.asarray(
             list(opts.keys())
@@ -705,7 +705,7 @@ class saveModel:
         )
 
         # Create data set
-        # self.hdf5.create_dataset("smooth_opts".encode('utf8'), data=np.array(list(opts.values()), dtype=np.float))
+        # self.hdf5.create_dataset("smooth_opts".encode('utf8'), data=np.array(list(opts.values()), dtype=float))
         # self.hdf5['smooth_opts'].attrs['names'] = np.asarray(list(opts.keys())).astype('S')
 
         # Create HDF5 group
