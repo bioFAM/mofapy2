@@ -1329,6 +1329,7 @@ class entry_point(object):
             )
         print("\n")
 
+<<<<<<< HEAD
     def set_data_options(
         self,
         scale_views=False,
@@ -1337,6 +1338,10 @@ class entry_point(object):
         use_float32=False,
     ):
         """Set data processing options"""
+=======
+    def set_data_options(self, scale_views=False, scale_groups = False, center_groups = True, use_float32 = True):
+        """ Set data processing options """
+>>>>>>> master
 
         if not hasattr(self, "data_opts"):
             self.data_opts = {}
@@ -1799,6 +1804,7 @@ class entry_point(object):
                 self.Zpredictions["groups"],
             )
 
+<<<<<<< HEAD
 
 def mofa(
     adata,
@@ -1830,6 +1836,21 @@ def mofa(
     quiet: bool = True,
     copy: bool = False,
 ):
+=======
+def mofa(adata, groups_label: bool = None, use_raw: bool = False, use_layer: bool = None, 
+         features_subset: Optional[str] = None,
+         likelihood: Optional[Union[str, List[str]]] = None, n_factors: int = 10,
+         scale_views: bool = False, scale_groups: bool = False,
+         ard_weights: bool = True, ard_factors: bool = True,
+         spikeslab_weights: bool = False, spikeslab_factors: bool = False,
+         n_iterations: int = 1000, convergence_mode: str = "fast",
+         gpu_mode: bool = False, use_float32: bool = True,
+         save_parameters: bool = False, save_data: bool = True, save_metadata: bool = True,
+         seed: int = 1, outfile: Optional[str] = None,
+         expectations: Optional[List[str]] = None,
+         save_interrupted: bool = False,
+         verbose: bool = False, quiet: bool = True, copy: bool = False):
+>>>>>>> master
     """
     Helper function to init and build the model in a single call
     from annotation data object
