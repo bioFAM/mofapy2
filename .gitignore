@@ -2,11 +2,8 @@
 *Icon*
 .DS_Store
 
-# Rstudio projects
-*.Rproj
-.Rhistory
 
-*_site/
+
 # Pycharm
 .idea
 
@@ -34,14 +31,17 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
-.Rproj.user
-*.Rcheck
-.Rproj.user
-.Rhistory
-.RData
+
 *.ipynb_checkpoints
 
 *_cache/
 *_files/
+*_site/
 
 *.tar.gz
+
+# pypi
+push_pypi.sh
+
+# virtual environments
+.venv
