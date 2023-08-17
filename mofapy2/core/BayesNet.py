@@ -236,7 +236,7 @@ class BayesNet(object):
             print("ELBO before training:")
             print(
                 "".join(
-                    ["%s=%.2f  " % (k, v) for k, v in elbo.drop("total").iteritems()]
+                    ["%s=%.2f  " % (k, v) for k, v in elbo.drop("total").items()]
                 )
                 + "\nTotal: %.2f\n" % elbo["total"]
             )
@@ -331,7 +331,7 @@ class BayesNet(object):
                             + "".join(
                                 [
                                     "%s=%.2f  " % (k, v)
-                                    for k, v in elbo.iloc[i].drop("total").iteritems()
+                                    for k, v in elbo.iloc[i].drop("total").items()
                                 ]
                             )
                         )
@@ -384,7 +384,7 @@ class BayesNet(object):
                 "time": iter_time,
                 "number_factors": number_factors,
                 "elbo": elbo["total"].values,
-                "elbo_terms": elbo.drop("total", 1),
+                "elbo_terms": elbo.drop("total", axis=1),
             }
             if "Sigma" in self.nodes.keys():
                 tmp = self.nodes["Sigma"].getParameters()  # save only last iteration
@@ -719,7 +719,7 @@ class StochasticBayesNet(BayesNet):
                         + "".join(
                             [
                                 "%s=%.2f  " % (k, v)
-                                for k, v in elbo.iloc[i].drop("total").iteritems()
+                                for k, v in elbo.iloc[i].drop("total").items()
                             ]
                         )
                     )
