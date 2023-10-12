@@ -66,7 +66,6 @@ class ThetaW_Node(Beta_Unobserved_Variational_Node):
         self.Q.setParameters(a=Qa, b=Qb)
 
     def calculateELBO(self):
-
         # Collect parameters and expectations
         Qpar, Qexp = self.Q.getParameters(), self.Q.getExpectations()
         Pa, Pb, Qa, Qb = self.Ppar["a"], self.Ppar["b"], Qpar["a"], Qpar["b"]
@@ -91,7 +90,6 @@ class ThetaZ_Node(Beta_Unobserved_Variational_Node):
     """
 
     def __init__(self, dim, pa, pb, qa, qb, groups, qE=None):
-
         self.groups = groups
         self.factors_axis = 1
         self.N = len(self.groups)
@@ -159,7 +157,6 @@ class ThetaZ_Node(Beta_Unobserved_Variational_Node):
         self.Q.setParameters(a=Qa, b=Qb)
 
     def _updateParameters(self, S, groups, ro):
-
         Q = self.Q.getParameters()
         Qa, Qb = Q["a"], Q["b"]
         Qa *= 1 - ro
@@ -186,7 +183,6 @@ class ThetaZ_Node(Beta_Unobserved_Variational_Node):
         return Qa, Qb
 
     def calculateELBO(self):
-
         # Collect parameters and expectations
         Qpar, Qexp = self.Q.getParameters(), self.Q.getExpectations()
         Pa, Pb, Qa, Qb = self.Ppar["a"], self.Ppar["b"], Qpar["a"], Qpar["b"]

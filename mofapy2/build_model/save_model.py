@@ -55,7 +55,6 @@ class saveModel:
         sort_factors=True,
         compression_level=9,
     ):
-
         # Check that the model is trained
         # NOTE: it might be not trained if saving when training is interrupted
         if not model.trained:
@@ -265,7 +264,6 @@ class saveModel:
             data_subgrp = data_grp.create_group(self.views_names[m])
             intercept_subgrp = intercept_grp.create_group(self.views_names[m])
             for g in range(len(self.groups_names)):
-
                 # Subset group
                 samples_idx = np.where(
                     np.array(self.samples_groups) == self.groups_names[g]
@@ -332,7 +330,6 @@ class saveModel:
         for m in range(len(mean)):
             view_subgrp = data_grp.create_group(self.views_names[m])
             for g in range(len(self.groups_names)):
-
                 # Subset group
                 samples_idx = np.where(
                     np.array(self.samples_groups) == self.groups_names[g]
@@ -391,7 +388,6 @@ class saveModel:
                 )
 
     def saveExpectations(self, nodes="all"):
-
         # Get nodes from the model
         nodes_dic = self.model.getNodes()
         if type(nodes) is str:
@@ -435,15 +431,12 @@ class saveModel:
             # Multi-view nodes
             if isinstance(nodes_dic[n], Multiview_Node):
                 for m in range(nodes_dic[n].M):
-
                     # Multi-groups nodes (Tau, Y, and Z)
                     if n in multigroup_nodes:
-
                         # Create subgroup for the view
                         view_subgrp = node_subgrp.create_group(self.views_names[m])
 
                         for g in self.groups_names:
-
                             # Add missing values to Tau and Y nodes
                             exp[m][self.mask[m]] = np.nan
 
@@ -471,7 +464,6 @@ class saveModel:
 
             # Single-view nodes
             else:
-
                 # Multi-group nodes (Z)
                 if n in multigroup_nodes:
                     for g in self.groups_names:
@@ -548,13 +540,11 @@ class saveModel:
             # Multi-view nodes
             if isinstance(nodes_dic[n], Multiview_Node):
                 for m in range(nodes_dic[n].M):
-
                     # Create subgroup for the view
                     view_subgrp = node_subgrp.create_group(self.views_names[m])
 
                     # Multi-groups nodes
                     if n in multigroup_nodes:
-
                         for g in self.groups_names:
                             grp_subgrp = view_subgrp.create_group(g)
 
@@ -586,7 +576,6 @@ class saveModel:
 
             # Single-view nodes
             else:
-
                 # Multi-group nodes
                 if n in multigroup_nodes:
                     for g in self.groups_names:
@@ -615,7 +604,6 @@ class saveModel:
         pass
 
     def saveModelOptions(self):
-
         # Subset model options
         options_to_save = [
             "likelihoods",
@@ -717,7 +705,6 @@ class saveModel:
         grp[k].attrs["names"] = np.asarray(list(opts.keys())).astype("S")
 
     def saveVarianceExplained(self):
-
         # Sort values by alphabetical order of views
         # order = np.argsort(self.views_names)
         # # order = [ i[0] for i in sorted(enumerate(self.views_names), key=lambda x:x[1]) ]

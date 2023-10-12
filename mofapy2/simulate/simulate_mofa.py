@@ -113,11 +113,7 @@ def simulate_data(
 
     Z = []
     for g in range(G):
-        Z.append(
-            Zks[
-                groupidx == g,
-            ]
-        )
+        Z.append(Zks[groupidx == g,])
 
     # simulate alpha and theta, each factor should be active in at least one view
     theta = 0.5 * np.ones([M, K])

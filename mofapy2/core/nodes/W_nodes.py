@@ -69,7 +69,6 @@ class W_Node(UnivariateGaussian_Unobserved_Variational_Node):
         self._updateParameters(Y, Z, tau, Mu, Alpha, Qmean, Qvar, coeff, ro)
 
     def _updateParameters(self, Y, Z, tau, Mu, Alpha, Qmean, Qvar, coeff, ro):
-
         for k in range(self.dim[1]):
             foo = coeff * np.dot(Z["E2"][:, k], tau)
 
@@ -96,7 +95,6 @@ class W_Node(UnivariateGaussian_Unobserved_Variational_Node):
             )
 
     def calculateELBO(self):
-
         # Collect parameters and expectations of current node
         Qpar, Qexp = self.Q.getParameters(), self.Q.getExpectations()
         Qmean, Qvar = Qpar["mean"], Qpar["var"]
@@ -175,7 +173,6 @@ class SW_Node(BernoulliGaussian_Unobserved_Variational_Node):
         super().removeFactors(idx, axis=1)
 
     def updateParameters(self, ix=None, ro=1.0):
-
         # Collect expectations from other nodes
         Y = self.markov_blanket["Y"].get_mini_batch()
         Z = self.markov_blanket["Z"].get_mini_batch()
@@ -235,7 +232,6 @@ class SW_Node(BernoulliGaussian_Unobserved_Variational_Node):
         coeff,
         ro,
     ):
-
         # Mask matrices
         tau[mask] = 0.0
 
@@ -255,7 +251,6 @@ class SW_Node(BernoulliGaussian_Unobserved_Variational_Node):
 
         # Update each latent variable in turn
         for k in range(self.dim[1]):
-
             # Compute terms
             term1 = (theta_lnE - theta_lnEInv)[:, k]
 

@@ -53,9 +53,7 @@ def gaussianise(Y_m, axis=0):
 
 
 def process_data(data, likelihoods, data_opts, samples_groups):
-
     for m in range(len(data)):
-
         # For some wierd reason, when using reticulate from R, missing values are stored as -2147483648
         data[m][data[m] == -2147483648] = np.nan
 
@@ -79,7 +77,6 @@ def process_data(data, likelihoods, data_opts, samples_groups):
 
         # Centering and scaling is only appropriate for gaussian data
         if likelihoods[m] in ["gaussian"]:
-
             # Center features per group
             if data_opts["center_groups"]:
                 for g in data_opts["groups_names"]:

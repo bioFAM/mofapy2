@@ -80,7 +80,6 @@ class Kc_Node(Node):
             self.compute_kernel_at_gridpoint(i, spectral_decomp=spectral_decomp)
 
     def compute_kernel_at_gridpoint(self, i, spectral_decomp=True):
-
         # build kernel matrix based on given covariance function
         if not spectral_decomp:
             self.Kmat[i, :, :] = SE(self.covariates, self.l_grid[i], zeta=0)
@@ -118,7 +117,6 @@ class Kc_Node(Node):
         # no recomputation required as stored on grid
 
     def eval_at_newpoints_k(self, new_cov, k):
-
         Kc_new = SE(new_cov, self.l_grid[self.gridix[k]], zeta=0)
 
         return Kc_new

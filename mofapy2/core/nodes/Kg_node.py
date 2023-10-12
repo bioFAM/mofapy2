@@ -6,6 +6,7 @@ from mofapy2.core.gp_utils import covar_to_corr
 from mofapy2.core.nodes.variational_nodes import *
 from mofapy2.core.gp_utils import *
 
+
 # TODO: for large number of groups avoid constructing Kmat if spectral decomp and only save x at the end (getParameters in SigmaNode)
 class Kg_Node(Node):
     """

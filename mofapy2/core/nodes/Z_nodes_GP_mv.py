@@ -7,6 +7,7 @@ import numpy as np
 # Import manually defined functions
 from .variational_nodes import MultivariateGaussian_Unobserved_Variational_Node
 
+
 # Z_GP_Node_mv
 class Z_GP_Node_mv(MultivariateGaussian_Unobserved_Variational_Node):
     """
@@ -45,7 +46,6 @@ class Z_GP_Node_mv(MultivariateGaussian_Unobserved_Variational_Node):
             return self.mini_batch
 
     def updateParameters(self, ix=None, ro=1.0):
-
         # Get expectations from other nodes
         W = self.markov_blanket["W"].getExpectations()
         Y = self.markov_blanket["Y"].get_mini_batch()

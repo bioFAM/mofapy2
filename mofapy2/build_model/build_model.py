@@ -149,7 +149,6 @@ class buildBiofam(buildModel):
         # initTheta_qE = 1.
 
         self.init_model.initThetaZ(
-            self.data_opts["samples_groups"],
             qa=initTheta_a,
             qb=initTheta_b,
             qE=initTheta_qE,

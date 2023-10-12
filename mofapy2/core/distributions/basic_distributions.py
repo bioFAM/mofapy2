@@ -19,6 +19,7 @@ import numpy as np
 # from mofapy2.config import settings
 # from mofapy2.core.utils import *  # TODO prob not necessary ?
 
+
 # General class for probability distributions
 class Distribution(object):
     """General class for a statistical distribution"""

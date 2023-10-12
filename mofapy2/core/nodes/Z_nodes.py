@@ -150,7 +150,6 @@ class Z_Node(UnivariateGaussian_Unobserved_Variational_Node):
         return {"Qmean": Qmean, "Qvar": Qvar}
 
     def calculateELBO(self):
-
         # Collect parameters and expectations of current node
         Qpar, Qexp = self.Q.getParameters(), self.Q.getExpectations()
         Qmean, Qvar = Qpar["mean"], Qpar["var"]
@@ -432,7 +431,6 @@ class SZ_Node(BernoulliGaussian_Unobserved_Variational_Node):
         return {"mean_B1": Qmean_T1, "var_B1": Qvar_T1, "theta": Qtheta}
 
     def calculateELBO(self):
-
         # Collect parameters and expectations
         Qpar, Qexp = self.Q.getParameters(), self.Q.getExpectations()
         T, ZZ = Qexp["EB"], Qexp["ENN"]

@@ -11,6 +11,7 @@ from .variational_nodes import UnivariateGaussian_Unobserved_Variational_Node
 #  could be integrated in usual Z node (using a check if U is in Markov blanket)
 #  currentyl takes as N(0,1) prior for nonstuctured factors not flexible using pvar pmean
 
+
 # ZgU_node
 class ZgU_node(UnivariateGaussian_Unobserved_Variational_Node):
     """
@@ -59,7 +60,6 @@ class ZgU_node(UnivariateGaussian_Unobserved_Variational_Node):
             return self.mini_batch
 
     def updateParameters(self, ix=None, ro=1.0):
-
         # Get expectations from other nodes
         U = self.markov_blanket["U"].getExpectations()
 
@@ -185,7 +185,6 @@ class ZgU_node(UnivariateGaussian_Unobserved_Variational_Node):
         # only non-stucutred nodes contribute here, else p(z|u) = q(z|u) --> ELBO is zero
         unstructured = (p_cov[k] == np.eye(p_cov[k].shape[0])).all()
         if unstructured:
-
             tmp1 = -0.5 * (QE2[:, k]).sum()
             tmp2 = 0
 

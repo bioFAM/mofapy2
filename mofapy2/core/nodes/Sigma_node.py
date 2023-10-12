@@ -345,7 +345,6 @@ class Sigma_Node_base(Node):
         self.Sigma_inv_logdet = np.delete(self.Sigma_inv_logdet, axis=0, obj=idx)
 
     def calc_neg_elbo_k(self, par, lidx, k, var):
-
         self.zeta[k] = par[0]
         self.Kc.set_gridix(lidx, k)
 
@@ -624,7 +623,6 @@ class Sigma_Node_base(Node):
 
         # optimise hyperparamters of GP
         for k in range(K):
-
             best_zeta = -1
             best_elbo = -np.Inf
 
@@ -751,7 +749,6 @@ class Sigma_Node(Sigma_Node_base):
         rankx=None,
         model_groups=False,
     ):
-
         super().__init__(
             dim, sample_cov, groups, start_opt, opt_freq, n_grid, rankx, model_groups
         )
@@ -812,7 +809,6 @@ class Sigma_Node_sparse(Sigma_Node_base):
         model_groups=False,
         idx_inducing=None,
     ):
-
         super().__init__(
             dim, sample_cov, groups, start_opt, opt_freq, n_grid, rankx, model_groups
         )
@@ -946,7 +942,6 @@ class Sigma_Node_warping(Sigma_Node_base):
         warping_open_end=True,
         warping_groups=None,
     ):
-
         super().__init__(
             dim, sample_cov, groups, start_opt, opt_freq, n_grid, rankx, model_groups
         )

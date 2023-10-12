@@ -98,7 +98,6 @@ class initModel(object):
         # mean
         if qmean is not None:
             if isinstance(qmean, str):
-
                 # Random initialisation
                 if qmean == "random":
                     qmean = stats.norm.rvs(loc=0, scale=1, size=(self.N, self.K))
@@ -199,7 +198,6 @@ class initModel(object):
         # mean
         if qmean is not None:
             if isinstance(qmean, str):
-
                 # Random initialisation
                 if qmean == "random":
                     qmean = stats.norm.rvs(loc=0, scale=1, size=(self.N, self.K))
@@ -350,7 +348,6 @@ class initModel(object):
         # mean
         if qmean is not None:
             if isinstance(qmean, str):
-
                 # Random initialisation
                 if qmean == "random":
                     qmean = stats.norm.rvs(loc=0, scale=1, size=(self.N, self.K))
@@ -415,7 +412,6 @@ class initModel(object):
         model_groups=False,
         use_gpytorch=False,
     ):
-
         self.Sigma = Sigma_Node(
             dim=(self.K,),
             sample_cov=sample_cov,
@@ -437,7 +433,6 @@ class initModel(object):
         model_groups=False,
         use_gpytorch=False,
     ):
-
         self.Sigma = Sigma_Node_sparse(
             dim=(self.K,),
             sample_cov=sample_cov,
@@ -464,7 +459,6 @@ class initModel(object):
         model_groups=False,
         use_gpytorch=False,
     ):
-
         self.Sigma = Sigma_Node_warping(
             dim=(self.K,),
             sample_cov=sample_cov,
@@ -514,7 +508,6 @@ class initModel(object):
 
         ## Initialise variational distribution (Q)
         if isinstance(qmean_T1, str):
-
             if qmean_T1 == "random":
                 qmean_T1 = stats.norm.rvs(loc=0, scale=1, size=(self.N, self.K))
             elif qmean_T1 == "pca":
@@ -579,7 +572,6 @@ class initModel(object):
         W_list = [None] * self.M
 
         for m in range(self.M):
-
             ## Initialise prior distribution (P) ##
 
             # mean
@@ -593,7 +585,6 @@ class initModel(object):
             # mean
             if qmean is not None:
                 if isinstance(qmean, str):
-
                     # Random initialisation
                     if qmean == "random":
                         qmean_m = stats.norm.rvs(
@@ -665,12 +656,10 @@ class initModel(object):
         W_list = [None] * self.M
 
         for m in range(self.M):
-
             ## Initialise prior distribution (P)
 
             ## Initialise variational distribution (Q)
             if isinstance(qmean_S1, str):
-
                 if qmean_S1 == "random":
                     qmean_S1_tmp = stats.norm.rvs(
                         loc=0, scale=1.0, size=(self.D[m], self.K)
@@ -800,7 +789,6 @@ class initModel(object):
         tau_list = [None] * self.M
 
         for m in range(self.M):
-
             # Poisson noise model for count data
             if self.lik[m] == "poisson":
                 tmp = 0.25 + 0.17 * np.nanmax(self.data[m], axis=0)

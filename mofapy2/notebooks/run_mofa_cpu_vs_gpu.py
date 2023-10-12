@@ -8,7 +8,7 @@ import argparse
 #####################
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--gpu', action='store_true')
+parser.add_argument("--gpu", action="store_true")
 
 args, _ = parser.parse_known_args()
 
@@ -30,7 +30,9 @@ args, _ = parser.parse_known_args()
 ## Load data in data.frame format ##
 ####################################
 
-data = pd.read_csv("ftp://ftp.ebi.ac.uk/pub/databases/mofa/getting_started/data.txt.gz", sep="\t")
+data = pd.read_csv(
+    "ftp://ftp.ebi.ac.uk/pub/databases/mofa/getting_started/data.txt.gz", sep="\t"
+)
 
 ##########
 ## MOFA ##
@@ -49,7 +51,16 @@ ent.set_data_df(data)
 ent.set_model_options(factors=15)
 
 # Set training options
-ent.set_train_options(iter=50, freqELBO=1, dropR2=None, startELBO=1, verbose=False, seed=42, convergence_mode="fast", gpu_mode=args.gpu)
+ent.set_train_options(
+    iter=50,
+    freqELBO=1,
+    dropR2=None,
+    startELBO=1,
+    verbose=False,
+    seed=42,
+    convergence_mode="fast",
+    gpu_mode=args.gpu,
+)
 
 # Build the model
 ent.build()

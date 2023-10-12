@@ -10,7 +10,6 @@ from mofapy2.core.BayesNet import BayesNet
 
 
 def train_model(model):
-
     # Sanity check on the Bayesian Network
     assert isinstance(model, BayesNet), "'model' has to be a BayesNet class"
 
