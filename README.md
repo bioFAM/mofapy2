@@ -1,6 +1,6 @@
 # Multi-Omics Factor Analysis
 
-![PyPi version](https://img.shields.io/pypi/v/mofapy2)
+[![PyPi version](https://img.shields.io/pypi/v/mofapy2)](https://pypi.org/project/mofapy2)
 
 MOFA is a factor analysis model that provides a general framework for the integration of multi-omic data sets in an unsupervised fashion.  
 This repository contains `mofapy2` Python library source code.
