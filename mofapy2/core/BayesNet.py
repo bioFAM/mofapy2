@@ -169,7 +169,7 @@ class BayesNet(object):
                 # Variance explained per factor
                 else:
                     for k in range(self.dim["K"]):
-                        Ypred = s.outer(Z[gg, k], W[m][:, k])
+                        Ypred = np.outer(Z[gg, k], W[m][:, k])
                         Ypred[mask[gg, :]] = 0.0
                         Res = np.sum((Y[m][gg, :] - Ypred) ** 2.0)
                         r2[g][m, k] = 1.0 - Res / SS
