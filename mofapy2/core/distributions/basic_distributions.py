@@ -65,8 +65,8 @@ class Distribution(object):
 
     def CheckDimensionalities(self):
         """General method to do a sanity check on the dimensionalities"""
-        # p_dim = set(map(s.shape, self.params.values()))
-        e_dim = set(map(s.shape, self.expectations.values()))
+        # p_dim = set(map(np.shape, self.params.values()))
+        e_dim = set(map(np.shape, self.expectations.values()))
         # assert len(p_dim) == 1, "Parameters have different dimensionalities"
         assert len(e_dim) == 1, "Expectations have different dimensionalities"
         # assert e_dim == p_dim, "Parameters and Expectations have different dimensionality"
