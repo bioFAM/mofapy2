@@ -189,7 +189,7 @@ class BayesNet(object):
             r2 = self.calculate_variance_explained()
 
             tmp = [
-                s.where((r2[g] > min_r2).sum(axis=0) == 0)[0]
+                np.where((r2[g] > min_r2).sum(axis=0) == 0)[0]
                 for g in range(self.dim["G"])
             ]
             drop_dic["min_r2"] = list(set.intersection(*map(set, tmp)))
@@ -197,7 +197,7 @@ class BayesNet(object):
                 drop_dic["min_r2"] = [np.random.choice(drop_dic["min_r2"])]
 
         # Drop the factors
-        drop = s.unique(np.concatenate(list(drop_dic.values())))
+        drop = np.unique(np.concatenate(list(drop_dic.values())))
         if len(drop) > 0:
             for node in self.nodes.keys():
                 self.nodes[node].removeFactors(drop)
@@ -234,9 +234,7 @@ class BayesNet(object):
         if self.options["verbose"]:
             print("ELBO before training:")
             print(
-                "".join(
-                    ["%s=%.2f  " % (k, v) for k, v in elbo.drop("total").items()]
-                )
+                "".join(["%s=%.2f  " % (k, v) for k, v in elbo.drop("total").items()])
                 + "\nTotal: %.2f\n" % elbo["total"]
             )
         else:
@@ -401,7 +399,7 @@ class BayesNet(object):
         # print('Peak memory usage: %.2f MB' % (resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / infer_platform() ))
 
         # Variance explained
-        r2 = s.asarray(self.calculate_variance_explained(total=True)).mean(axis=0)
+        r2 = np.asarray(self.calculate_variance_explained(total=True)).mean(axis=0)
         r2[r2 < 0] = 0.0
         print(
             "- Variance explained:  "
