@@ -141,7 +141,7 @@ class MultivariateGaussian(Distribution):
         E = self.params["mean"]
 
         # second moment here of the marginal components: given by E(X_n^2) = E(X_n)^2 + Var(X_n)
-        E2 = s.empty((self.dim[0], self.dim[1]))
+        E2 = np.empty((self.dim[0], self.dim[1]))
         if self.axis_cov == 1:
             for i in range(self.dim[0]):
                 E2[i, :] = E[i, :] ** 2 + np.diag(self.params["cov"][i, :, :])
@@ -348,7 +348,7 @@ class MultivariateGaussian_reparam(Distribution):
         # Method to calculate expectation (N,D) and variance of th marginals (N,D)
 
         # first moments
-        E = s.empty((self.dim[0], self.dim[1]))
+        E = np.empty((self.dim[0], self.dim[1]))
         if self.axis_cov == 0:
             for i in range(self.dim[1]):
                 E[:, i] = self.params["K"][i, :, :].dot(self.params["alpha"][:, i])
@@ -359,7 +359,7 @@ class MultivariateGaussian_reparam(Distribution):
                 )
 
         # second moment here of the marginal components: given by E(X_n^2) = E(X_n)^2 + Var(X_n)
-        E2 = s.empty((self.dim[0], self.dim[1]))
+        E2 = np.empty((self.dim[0], self.dim[1]))
         if self.axis_cov == 0:
             for i in range(self.dim[1]):
                 A = np.diag(self.params["lamb"][:, i]).dot(
