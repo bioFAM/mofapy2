@@ -199,7 +199,7 @@ def mask_samples(sim, perc=0.2, perc_all_views=0):
     ]
     for m in range(M):
         for g in range(G):
-            data[m][g][masked_samples[m][g], :] = s.nan
+            data[m][g][masked_samples[m][g], :] = np.nan
 
     if perc_all_views > 0:
         masked_samples.all_views = [
@@ -208,6 +208,6 @@ def mask_samples(sim, perc=0.2, perc_all_views=0):
         ]
         for m in range(len(data)):
             for g in range(G):
-                data[m][g][masked_samples.all_views[g], :] = s.nan
+                data[m][g][masked_samples.all_views[g], :] = np.nan
 
     return data

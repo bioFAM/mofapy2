@@ -197,7 +197,7 @@ class Poisson_PseudoY(PseudoY_Seeger):
 
         # Initialise the observed data
         assert np.all(
-            s.mod(self.obs, 1) == 0
+            np.mod(self.obs, 1) == 0
         ), "Data must not contain float numbers, only integers"
         assert np.all(self.obs >= 0), "Data must not contain negative numbers"
 
