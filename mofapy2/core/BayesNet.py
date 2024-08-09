@@ -7,6 +7,7 @@ from __future__ import division
 from time import time
 import os
 import scipy as s
+import numpy as np
 import pandas as pd
 import sys
 import numpy.ma as ma
@@ -189,7 +190,7 @@ class BayesNet(object):
             r2 = self.calculate_variance_explained()
 
             tmp = [
-                s.where((r2[g] > min_r2).sum(axis=0) == 0)[0]
+                np.where((r2[g] > min_r2).sum(axis=0) == 0)[0]
                 for g in range(self.dim["G"])
             ]
             drop_dic["min_r2"] = list(set.intersection(*map(set, tmp)))
@@ -197,7 +198,7 @@ class BayesNet(object):
                 drop_dic["min_r2"] = [np.random.choice(drop_dic["min_r2"])]
 
         # Drop the factors
-        drop = s.unique(np.concatenate(list(drop_dic.values())))
+        drop = np.unique(np.concatenate(list(drop_dic.values())))
         if len(drop) > 0:
             for node in self.nodes.keys():
                 self.nodes[node].removeFactors(drop)
