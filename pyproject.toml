@@ -19,7 +19,7 @@ pandas = "*"
 scipy = "~1"
 scikit-learn = "~1"
 h5py = "~3"
-anndata = { version = "^0.8", optional = true }
+anndata = { version = "> 0.8", optional = true }
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.4.2"
