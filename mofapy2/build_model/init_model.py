@@ -115,7 +115,7 @@ class initModel(object):
 
                     if impute == True:
                         if np.any(np.isnan(Ytmp)):
-                            imp = SimpleImputer(missing_values=np.NaN, strategy="mean")
+                            imp = SimpleImputer(missing_values=np.nan, strategy="mean")
                             imp.fit(Ytmp)
                             Ytmp = imp.transform(Ytmp)
 
@@ -215,7 +215,7 @@ class initModel(object):
 
                     if impute == True:
                         if np.any(np.isnan(Ytmp)):
-                            imp = SimpleImputer(missing_values=np.NaN, strategy="mean")
+                            imp = SimpleImputer(missing_values=np.nan, strategy="mean")
                             imp.fit(Ytmp)
                             Ytmp = imp.transform(Ytmp)
 
@@ -366,7 +366,7 @@ class initModel(object):
 
                     if impute == True:
                         if np.any(np.isnan(Ytmp)):
-                            imp = SimpleImputer(missing_values=np.NaN, strategy="mean")
+                            imp = SimpleImputer(missing_values=np.nan, strategy="mean")
                             imp.fit(Ytmp)
                             Ytmp = imp.transform(Ytmp)
 
@@ -516,7 +516,7 @@ class initModel(object):
 
                 if impute == True:
                     if np.any(np.isnan(Ytmp)):
-                        imp = SimpleImputer(missing_values=np.NaN, strategy="mean")
+                        imp = SimpleImputer(missing_values=np.nan, strategy="mean")
                         imp.fit(Ytmp)
                         Ytmp = imp.transform(Ytmp)
 
