@@ -9,7 +9,7 @@ description = "Multi-omics factor analysis"
 authors = ['Ricard Argelaguet', 'Damien Arnol', 'Danila Bredikhin', 'Britta Velten']
 license = "LGPL-3.0"
 readme = 'README.md'
-repository = "https://github.com/gtca/mofapy2"
+repository = "https://github.com/bioFAM/mofapy2"
 homepage = "https:/biofam.github.io/MOFA2/"
 
 [tool.poetry.dependencies]
