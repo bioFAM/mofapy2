@@ -25,7 +25,7 @@ from .Y_nodes import Y_Node
 from .Tau_nodes import TauD_Node
 
 from mofapy2.core import gpu_utils
-from mofapy2.core.utils import sigmoid, lambdafn
+from mofapy2.core.utils import lambdafn
 
 
 ##############################
@@ -207,7 +207,7 @@ class Poisson_PseudoY(PseudoY_Seeger):
 
     def ratefn(self, X):
         # Poisson rate function
-        return np.log(1 + np.exp(X)) + 0.0001
+        return gpu_utils.log(1 + gpu_utils.exp(X)) + 0.0001
 
     def clip(self, threshold):
         # The local bound degrades with the presence of large values in the observed data, which should be clipped
@@ -215,11 +215,11 @@ class Poisson_PseudoY(PseudoY_Seeger):
 
     def updateExpectations(self):
         # Update the pseudodata
-        tau = self.markov_blanket["Tau"].getValue()
-        self.E = (
-            self.params["zeta"]
-            - sigmoid(self.params["zeta"])
-            * (1 - self.obs / self.ratefn(self.params["zeta"]))
+        tau = gpu_utils.array(self.markov_blanket["Tau"].getValue())
+        self.E = gpu_utils.asnumpy(
+            gpu_utils.array(self.params["zeta"])
+            - gpu_utils.sigmoid(self.params["zeta"])
+            * (1 - gpu_utils.array(self.obs) / self.ratefn(self.params["zeta"]))
             / tau
         )
         self.E[self.mask] = 0.0
@@ -230,23 +230,35 @@ class Poisson_PseudoY(PseudoY_Seeger):
 
     def calculateELBO(self):
         """Compute Evidence Lower Bound"""
-
-        Wtmp = self.markov_blanket["W"].getExpectations()
-        Ztmp = self.markov_blanket["Z"].getExpectations()
+        Wtmp = {
+            k: gpu_utils.array(mat)
+            for k, mat in self.markov_blanket["W"].getExpectations().items()
+        }
+        Ztmp = {
+            k: gpu_utils.array(mat)
+            for k, mat in self.markov_blanket["Z"].getExpectations().items()
+        }
         W, WW = Wtmp["E"], Wtmp["E2"]
         Z, ZZ = Ztmp["E"], Ztmp["E2"]
-        zeta = self.params["zeta"]
-        tau = self.markov_blanket["Tau"].getValue()
+        zeta = gpu_utils.array(self.params["zeta"])
+        tau = gpu_utils.array(self.markov_blanket["Tau"].getValue())
         mask = self.getMask()
 
         # Precompute terms
         ZW = Z.dot(W.T)
-        ZZWW = np.square(ZW) - np.dot(np.square(Z), np.square(W).T) + ZZ.dot(WW.T)
+        ZZWW = (
+            gpu_utils.square(ZW)
+            - gpu_utils.dot(gpu_utils.square(Z), gpu_utils.square(W).T)
+            + ZZ.dot(WW.T)
+        )
 
         # term1 = 0.5*tau*(ZW - zeta)**2
-        term1 = 0.5 * tau * (ZZWW - 2 * ZW * zeta + np.square(zeta))
-        term2 = (ZW - zeta) * (sigmoid(zeta) * (1.0 - self.obs / self.ratefn(zeta)))
-        term3 = self.ratefn(zeta) - self.obs * np.log(self.ratefn(zeta))
+        obs = gpu_utils.array(self.obs)
+        term1 = 0.5 * tau * (ZZWW - 2 * ZW * zeta + gpu_utils.square(zeta))
+        term2 = (ZW - zeta) * (
+            gpu_utils.sigmoid(zeta) * (1.0 - obs / self.ratefn(zeta))
+        )
+        term3 = self.ratefn(zeta) - obs * gpu_utils.log(self.ratefn(zeta))
 
         elbo = -(term1 + term2 + term3)
         elbo[mask] = 0.0
@@ -270,7 +282,7 @@ class Bernoulli_PseudoY(PseudoY_Seeger):
     IMPROVE EXPLANATION
     Pseudodata is updated as follows:
         yhat_ij = zeta_ij - f'(zeta_ij)/tau
-                = zeta_ij - 4*(sigmoid(zeta_ij) - y_ij)
+                = zeta_ij - 4*(gpu_utils.sigmoid(zeta_ij) - y_ij)
     """
 
     def __init__(self, dim, obs, groups, params=None, E=None):
@@ -286,7 +298,9 @@ class Bernoulli_PseudoY(PseudoY_Seeger):
 
     def updateExpectations(self):
         # Update the pseudodata
-        self.E = self.params["zeta"] - 4.0 * (sigmoid(self.params["zeta"]) - self.obs)
+        self.E = self.params["zeta"] - 4.0 * (
+            gpu_utils.sigmoid(self.params["zeta"]) - self.obs
+        )
 
         # regress out feature-wise mean from the pseudodata
         self.means = self.E.mean(axis=0).data
@@ -300,7 +314,7 @@ class Bernoulli_PseudoY(PseudoY_Seeger):
 
         tmp = gpu_utils.asnumpy(gpu_utils.dot(gpu_utils.array(Z), gpu_utils.array(W).T))
 
-        lb = self.obs * tmp - np.log(1.0 + np.exp(tmp))
+        lb = self.obs * tmp - gpu_utils.log(1.0 + gpu_utils.exp(tmp))
         lb[mask] = 0.0
 
         return lb.sum()
@@ -388,20 +402,33 @@ class Bernoulli_PseudoY_Jaakkola(PseudoY):
         self.E -= self.means
 
     def updateParameters(self, ix=None, ro=None):
-        Z = self.markov_blanket["Z"].getExpectations()
-        W = self.markov_blanket["W"].getExpectations()
-        self.params["zeta"] = np.sqrt(
-            np.square(Z["E"].dot(W["E"].T))
-            - np.dot(np.square(Z["E"]), np.square(W["E"].T))
-            + np.dot(Z["E2"], W["E2"].T)
+        Z = {
+            k: gpu_utils.array(mat)
+            for k, mat in self.markov_blanket["Z"].getExpectations().items()
+        }
+        W = {
+            k: gpu_utils.array(mat)
+            for k, mat in self.markov_blanket["W"].getExpectations().items()
+        }
+        self.params["zeta"] = gpu_utils.asnumpy(
+            gpu_utils.sqrt(
+                gpu_utils.square(Z["E"].dot(W["E"].T))
+                - gpu_utils.dot(gpu_utils.square(Z["E"]), gpu_utils.square(W["E"].T))
+                + gpu_utils.dot(Z["E2"], W["E2"].T)
+            )
         )
 
     def calculateELBO(self):
         # Compute Evidence Lower Bound using the lower bound to the likelihood
-        Z = self.markov_blanket["Z"].getExpectation()
-        Wtmp = self.markov_blanket["W"].getExpectations()
-        Ztmp = self.markov_blanket["Z"].getExpectations()
-        zeta = self.params["zeta"]
+        Wtmp = {
+            k: gpu_utils.array(mat)
+            for k, mat in self.markov_blanket["W"].getExpectations().items()
+        }
+        Ztmp = {
+            k: gpu_utils.array(mat)
+            for k, mat in self.markov_blanket["Z"].getExpectations().items()
+        }
+        zeta = gpu_utils.array(self.params["zeta"])
         SW, SWW = Wtmp["E"], Wtmp["E2"]
         Z, ZZ = Ztmp["E"], Ztmp["E2"]
         mask = self.getMask()
@@ -412,18 +439,18 @@ class Bernoulli_PseudoY_Jaakkola(PseudoY):
 
         # Calculate E[(ZW_nd)^2]
         # this is equal to E[\sum_{k != k} z_k w_k z_k' w_k'] + E[\sum_{k} z_k^2 w_k^2]
-        tmp1 = np.square(ZW) - np.dot(
-            np.square(Z), np.square(SW).T
+        tmp1 = gpu_utils.square(ZW) - gpu_utils.dot(
+            gpu_utils.square(Z), gpu_utils.square(SW).T
         )  # this is for terms in k != k'
         tmp2 = ZZ.dot(SWW.T)  # this is for terms in k = k'
         EZZWW = tmp1 + tmp2
 
         # calculate elbo terms
-        term1 = 0.5 * ((2.0 * self.obs - 1.0) * ZW - zeta)
-        term2 = -np.log(1 + np.exp(-zeta))
-        term3 = -1 / (4 * zeta) * np.tanh(zeta / 2.0) * (EZZWW - zeta**2)
+        term1 = 0.5 * ((2.0 * gpu_utils.array(self.obs) - 1.0) * ZW - zeta)
+        term2 = -gpu_utils.log(1 + gpu_utils.exp(-zeta))
+        term3 = -1 / (4 * zeta) * gpu_utils.tanh(zeta / 2.0) * (EZZWW - zeta**2)
 
-        lb = term1 + term2 + term3
+        lb = gpu_utils.asnumpy(term1 + term2 + term3)
         lb[mask] = 0.0
 
         return lb.sum()

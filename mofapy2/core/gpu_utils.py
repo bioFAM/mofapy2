@@ -43,6 +43,27 @@ def sum(mat):
         return np.sum(mat)
 
 
+def sigmoid(mat):
+    if gpu_mode:
+        return cp.divide(1.0, 1.0 + cp.exp(-mat))
+    else:
+        return np.divide(1.0, 1.0 + np.exp(-mat))
+
+
+def sqrt(mat):
+    if gpu_mode:
+        return cp.sqrt(mat)
+    else:
+        return np.sqrt(mat)
+
+
+def tanh(mat):
+    if gpu_mode:
+        return cp.tanh(mat)
+    else:
+        return np.tanh(mat)
+
+
 # --------------------------------------------------------
 # operations on matrices pairs
 # --------------------------------------------------------
