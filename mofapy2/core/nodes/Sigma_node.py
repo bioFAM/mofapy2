@@ -1075,9 +1075,9 @@ class Sigma_Node_warping(Sigma_Node_base):
                 new_val = tref[ref_idx]
                 old_val = self.sample_cov[self.warping_groups == g, 0]
                 new_sample_cov = [new_val[tg == told].item() for told in old_val]
-                self.sample_cov_transformed[
-                    self.warping_groups == g, 0
-                ] = new_sample_cov
+                self.sample_cov_transformed[self.warping_groups == g, 0] = (
+                    new_sample_cov
+                )
 
                 # # reorder by covariate value to ensure monotonicity constrains are correctly placed
                 # idx_ref_order = np.argsort(self.sample_cov[self.warping_groups == self.reference_group,0])

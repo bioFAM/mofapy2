@@ -234,9 +234,7 @@ class BayesNet(object):
         if self.options["verbose"]:
             print("ELBO before training:")
             print(
-                "".join(
-                    ["%s=%.2f  " % (k, v) for k, v in elbo.drop("total").items()]
-                )
+                "".join(["%s=%.2f  " % (k, v) for k, v in elbo.drop("total").items()])
                 + "\nTotal: %.2f\n" % elbo["total"]
             )
         else:

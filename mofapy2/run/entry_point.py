@@ -1695,12 +1695,16 @@ class entry_point(object):
             views_names=self.data_opts["views_names"],
             groups_names=self.data_opts["groups_names"],
             covariates_names=covariates_names,
-            samples_metadata=self.data_opts["samples_metadata"]
-            if "samples_metadata" in self.data_opts
-            else None,
-            features_metadata=self.data_opts["features_metadata"]
-            if "features_metadata" in self.data_opts
-            else None,
+            samples_metadata=(
+                self.data_opts["samples_metadata"]
+                if "samples_metadata" in self.data_opts
+                else None
+            ),
+            features_metadata=(
+                self.data_opts["features_metadata"]
+                if "features_metadata" in self.data_opts
+                else None
+            ),
             compression_level=9,
         )
 
