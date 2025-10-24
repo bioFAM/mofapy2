@@ -240,7 +240,7 @@ class MultivariateGaussian(Distribution):
 
 
 class MultivariateGaussian_reparam(Distribution):
-    """
+    r"""
            Class to define multivariate Gaussian distribution with reparamtriation following Opper & Archambeau (2009)
     \      Each distribution's mean and covariance are reparametrized as
            mu = K alpha

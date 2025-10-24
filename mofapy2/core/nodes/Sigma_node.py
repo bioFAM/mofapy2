@@ -25,7 +25,7 @@ from mofapy2.core import gpu_utils
 
 
 class Sigma_Node_base(Node):
-    """
+    r"""
     Sigma node to optimises the GP hyperparameters for each factor and
     perform alignment of covariates per group.
 

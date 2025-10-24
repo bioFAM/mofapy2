@@ -63,7 +63,7 @@ class entry_point(object):
     def print_banner(self):
         """Method to print the mofapy2 banner"""
 
-        banner = """
+        banner = r"""
         #########################################################
         ###           __  __  ____  ______                    ### 
         ###          |  \/  |/ __ \|  ____/\    _             ### 
@@ -73,10 +73,9 @@ class entry_point(object):
         ###          |_|  |_|\____/|_|/_/    \_\              ###
         ###                                                   ### 
         ######################################################### 
-       \n 
         """
 
-        print(banner)
+        print(banner, "\n\n")
         sys.stdout.flush()
 
     def set_covariates(self, sample_cov, covariates_names=None):

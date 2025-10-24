@@ -166,7 +166,7 @@ class Tau_Seeger(Constant_Node):
 
 
 class Poisson_PseudoY(PseudoY_Seeger):
-    """
+    r"""
     Class for a Poisson pseudodata node.
     Likelihood:
         p(y|x) \prop gamma(x) * e^{-gamma(x)}  (1)

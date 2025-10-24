@@ -47,7 +47,7 @@ def fast_dot(A, B):
 
 
 def dotd(A, B, out=None):
-    """Diagonal of :math:`\mathrm A\mathrm B^\intercal`.
+    r"""Diagonal of :math:`\mathrm A\mathrm B^\intercal`.
     If ``A`` is :math:`n\times p` and ``B`` is :math:`p\times n`, it is done in :math:`O(pn)`.
     Args:
         A (array_like): Left matrix.

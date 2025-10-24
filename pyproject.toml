@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "mofapy2"
-version = "0.7.2"
+version = "0.7.3"
 description = "Multi-omics factor analysis"
 authors = ['Ricard Argelaguet', 'Damien Arnol', 'Danila Bredikhin', 'Britta Velten']
 license = "LGPL-3.0"
