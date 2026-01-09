@@ -770,7 +770,7 @@ class StochasticBayesNet(BayesNet):
             "time": iter_time,
             "number_factors": number_factors,
             "elbo": elbo["total"].values,
-            "elbo_terms": elbo.drop("total", 1),
+            "elbo_terms": elbo.drop("total", axis=1),
         }
         if "Sigma" in self.nodes.keys():
             tmp = self.nodes["Sigma"].getParameters()  # save only last iteration
