@@ -186,7 +186,7 @@ class saveModel:
 
                     ctype = self.samples_metadata[g][col].dtype
 
-                    if ctype == "object":
+                    if ctype in ("object", "str"):
                         try:
                             # Try to encode as ASCII strings
                             group_meta.create_dataset(
@@ -244,7 +244,7 @@ class saveModel:
                         ].astype(orig_type)
 
                     ctype = self.features_metadata[m][col].dtype
-                    ctype = "|S" if ctype == "object" else ctype.type
+                    ctype = "|S" if ctype in ("object", "str") else ctype.type
                     view_meta.create_dataset(
                         col, data=np.array(self.features_metadata[m][col], dtype=ctype)
                     )
