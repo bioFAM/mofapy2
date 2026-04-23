@@ -458,6 +458,10 @@ class entry_point(object):
         data_matrix = data_matrix.loc[np.concatenate(self.data_opts["samples_names"])]
         data_matrix = data_matrix[[y for x in features_names_tmp for y in x]]
 
+        # Convert from pandas dataframe to numpy array
+        dtype = np.float32 if config.use_float32 else np.float64
+        data_matrix_np = data_matrix.to_numpy(dtype=dtype, copy=True)
+
         # Split into a list of views, each view being a matrix
         tmp_features = (
             data[["feature", "view"]]
@@ -466,7 +470,7 @@ class entry_point(object):
             .nunique()
         )
         nfeatures = tmp_features.loc[self.data_opts["views_names"]]
-        data_matrix = np.split(data_matrix, np.cumsum(nfeatures)[:-1], axis=1)
+        data_matrices = np.split(data_matrix_np, np.cumsum(nfeatures)[:-1], axis=1)
 
         # Define sample groups
         self.data_opts["samples_groups"] = (
@@ -516,23 +520,18 @@ class entry_point(object):
                     print("No data found for group='%s' and view='%s'..." % (g, m))
         print("\n")
 
-        # Convert from pandas dataframe to numpy array
-        for m in range(M):
-            if isinstance(data_matrix[m], pd.DataFrame):
-                data_matrix[m] = data_matrix[m].values
-
         # Store intercepts
         self.intercepts = [None for m in range(M)]
         tmp = [len(x) for x in self.data_opts["samples_names"]]
         for m in range(M):
             self.intercepts[m] = [
                 np.nanmean(x, axis=0)
-                for x in np.split(data_matrix[m], np.cumsum(tmp)[:-1], axis=0)
+                for x in np.split(data_matrices[m], np.cumsum(tmp)[:-1], axis=0)
             ]
 
         # Define likelihoods
         if likelihoods is None:
-            likelihoods = guess_likelihoods(data_matrix)
+            likelihoods = guess_likelihoods(data_matrices)
         elif isinstance(likelihoods, str):
             likelihoods = [likelihoods]
         assert (
@@ -545,7 +544,7 @@ class entry_point(object):
 
         # Process the data (i.e center, scale, etc.)
         self.data = process_data(
-            data_matrix, likelihoods, self.data_opts, self.data_opts["samples_groups"]
+            data_matrices, likelihoods, self.data_opts, self.data_opts["samples_groups"]
         )
 
     def set_data_from_anndata(
