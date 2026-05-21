@@ -53,6 +53,7 @@ class TestAnnData:
 
         mofa(
             adata, groups_label="group", outfile=filepath_hdf5, expectations=["W", "Z"],
+            freqELBO=1,
         )
 
         adata.obs["true_group"] = [s.split("_")[1] for s in adata.obs["sample"]]

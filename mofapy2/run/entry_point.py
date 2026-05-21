@@ -1782,6 +1782,7 @@ def mofa(
     spikeslab_weights: bool = True,
     spikeslab_factors: bool = False,
     n_iterations: int = 1000,
+    freqELBO: int = 5,
     convergence_mode: str = "fast",
     gpu_mode: bool = False,
     gpu_device: Optional[bool] = None,
@@ -1860,6 +1861,7 @@ def mofa(
     )
     ent.set_train_options(
         iter=n_iterations,
+        freqELBO=freqELBO,
         convergence_mode=convergence_mode,
         gpu_mode=gpu_mode,
         gpu_device=gpu_device,
