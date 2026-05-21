@@ -858,7 +858,7 @@ class entry_point(object):
         self,
         iter=1000,
         startELBO=1,
-        freqELBO=1,
+        freqELBO=5,
         startSparsity=50,
         tolerance=None,
         convergence_mode="fast",
