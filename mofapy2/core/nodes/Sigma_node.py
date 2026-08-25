@@ -18,7 +18,6 @@ from mofapy2.core.nodes.Kg_node import Kg_Node
 from mofapy2.core.gp_utils import *
 from mofapy2.core import gpu_utils
 
-
 # TODO:
 # - implement warping for more than one covariate
 # - test sparse + warping
@@ -133,6 +132,21 @@ class Sigma_Node_base(Node):
             spectral_decomp=spectral_decomp,
         )
 
+    def has_kronecker_structure(self, sample_cov, groupsidx, n):
+        """
+        Method to check whether Sigma = (1-zeta) * (Kg (x) Kc) + zeta * I applies
+        to the given n points: each point i must sit at row
+        groupsidx[i] * C + covidx[i] of the product, i.e. every (group, covariate)
+        pair present exactly once (ordered group-major, covariates ascending).
+
+        For the sparse node the points are the inducing points rather than all samples.
+        """
+        covariates, covidx = np.unique(sample_cov, axis=0, return_inverse=True)
+        C = covariates.shape[0]
+        if n != self.G * C:
+            return False
+        return bool(np.array_equal(groupsidx * C + covidx.ravel(), np.arange(n)))
+
     def initKg(self, rank, spectral_decomp):
         """
         Method to initialize the group kernel
@@ -163,7 +177,7 @@ class Sigma_Node_base(Node):
 
     def calc_sigma_terms(self, only_inverse=False):
         """
-        Method to compute the inverse of sigma and itnp.log determinant based on the spectral decomposition
+        Method to compute the inverse of sigma and its log determinant based on the spectral decomposition
          of the kernel matrices for all factors
         """
         for k in range(self.K):
@@ -171,7 +185,7 @@ class Sigma_Node_base(Node):
 
     def calc_sigma_terms_k(self, k, only_inverse=False):
         """
-        Method to compute the inverse of sigma and itnp.log determinant based on the spectral decomposition
+        Method to compute the inverse of sigma and its log determinant based on the spectral decomposition
          of the kernel matrices for a given factor k
         """
         if self.zeta[k] == 1:
@@ -758,14 +772,8 @@ class Sigma_Node(Sigma_Node_base):
             self.G = len(self.groups)  # number of groups
             if rankx is None:
                 rankx = 1
-            self.kronecker = np.all(
-                [
-                    np.all(
-                        self.sample_cov_transformed[self.groupsidx == 0]
-                        == self.sample_cov_transformed[self.groupsidx == g]
-                    )
-                    for g in range(self.G)
-                ]
+            self.kronecker = self.has_kronecker_structure(
+                self.sample_cov_transformed, self.groupsidx, self.N
             )
             self.initKg(rank=rankx, spectral_decomp=self.kronecker)
         else:
@@ -826,18 +834,10 @@ class Sigma_Node_sparse(Sigma_Node_base):
             self.G = len(self.groups)  # number of groups
             if rankx is None:
                 rankx = 1
-            self.kronecker = np.all(
-                [
-                    np.all(
-                        self.sample_cov_transformed[self.idx_inducing][
-                            self.groupsidx == 0
-                        ]
-                        == self.sample_cov_transformed[self.idx_inducing][
-                            self.groupsidx == g
-                        ]
-                    )
-                    for g in range(self.G)
-                ]
+            self.kronecker = self.has_kronecker_structure(
+                self.sample_cov_transformed[self.idx_inducing],
+                self.groupsidx,
+                self.Nu,
             )
             self.initKg(rank=rankx, spectral_decomp=self.kronecker)
         else:
@@ -866,7 +866,7 @@ class Sigma_Node_sparse(Sigma_Node_base):
 
     def calc_sigma_terms_k(self, k, only_inverse=False):
         """
-        Method to compute the inverse of sigma and itnp.log determinant based on the spectral decomposition
+        Method to compute the inverse of sigma and its log determinant based on the spectral decomposition
          of the kernel matrices for a given factor k
         """
         if self.zeta[k] == 1:
