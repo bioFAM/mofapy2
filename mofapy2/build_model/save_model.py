@@ -200,7 +200,9 @@ class saveModel:
                             group_meta.create_dataset(
                                 col,
                                 data=np.char.encode(
-                                    self.samples_metadata[g][col].values.astype("U"),
+                                    np.asarray(
+                                        self.samples_metadata[g][col], dtype="U"
+                                    ),
                                     encoding="utf8",
                                 ),
                             )

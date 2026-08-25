@@ -683,8 +683,8 @@ class entry_point(object):
                 .tolist()
             )
             # List of names of groups for samples ordered as they are in the original data, i.e. [group2, group1, group1, ...]
-            self.data_opts["samples_groups"] = adata.obs[groups_label].values.astype(
-                str
+            self.data_opts["samples_groups"] = np.asarray(
+                adata.obs[groups_label], dtype=str
             )
             if save_metadata:
                 # List of metadata tables for each group of samples
@@ -805,7 +805,9 @@ class entry_point(object):
                 loom_metadata.groupby(groups_label)[cell_id].apply(list).tolist()
             )
             # List of names of groups for samples ordered as they are in the oridinal data, i.e. [group2, group1, group1, ...]
-            self.data_opts["samples_groups"] = loom_metadata[groups_label].values
+            self.data_opts["samples_groups"] = np.asarray(
+                loom_metadata[groups_label], dtype=str
+            )
 
         # If everything successful, print verbose message
         for m in range(M):
