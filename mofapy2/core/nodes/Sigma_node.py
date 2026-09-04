@@ -1027,9 +1027,11 @@ class Sigma_Node_warping(Sigma_Node_base):
         """
         try:
             from dtw import dtw  # note this is dtw-python not dtw
-        except ImportError:
-            print("dtw-python module not found. This is required for alignment.")
-            pass
+        except ImportError as e:
+            raise ImportError(
+                "dtw-python module not found. This is required for alignment. "
+                "Install it with `pip install dtw-python`."
+            ) from e
 
         paths = []
         for g in range(self.G4warping):

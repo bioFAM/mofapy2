@@ -13,13 +13,13 @@ repository = "https://github.com/bioFAM/mofapy2"
 homepage = "https:/biofam.github.io/MOFA2/"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 numpy = "*"
 pandas = "*"
 scipy = "~1"
 scikit-learn = "~1"
 h5py = "~3"
-anndata = { version = "> 0.8", optional = true }
+dtw-python = "*"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.2"
